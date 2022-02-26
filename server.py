@@ -17,16 +17,27 @@ class Plugin(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
-        if self.path == '/api/v1/template.execute':
-            args = self.args()
-            if 'hello' in args['template'].get('plugin', {}):
-                self.reply(
-                    {'node': {'phase': 'Succeeded', 'message': 'Hello template!',
-                              'outputs': {'parameters': [{'name': 'foo', 'value': 'bar'}]}}})
-            else:
-                self.reply({})
-        else:
+        if self.path != '/api/v1/template.execute':
             self.unsupported()
+            return
+
+        args = self.args()
+
+        if 'argocd' not in args['template'].get('plugin', {}):
+            self.reply({})
+            return
+
+        self.reply({
+            'node': {
+                'phase': 'Succeeded', 
+                'message': 'Hello template!',
+                'outputs': {
+                    'parameters': [
+                        {'name': 'foo', 'value': 'bar'}
+                    ]
+                }
+            }
+        })
 
 
 if __name__ == '__main__':
