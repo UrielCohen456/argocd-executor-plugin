@@ -42,7 +42,7 @@ data:
     - python
     - -c
     image: python:alpine
-    name: hello-executor-plugin
+    name: argocd-executor-plugin
     ports:
     - containerPort: 4355
     resources:
@@ -64,7 +64,7 @@ kind: ConfigMap
 metadata:
   annotations:
     workflows.argoproj.io/description: |
-      This is the "hello world" plugin.
+      This is an ArgoCD plugin that allows you to interact with an argocd instance of your choice
 
       Example:
 
@@ -72,16 +72,24 @@ metadata:
       apiVersion: argoproj.io/v1alpha1
       kind: Workflow
       metadata:
-        generateName: hello-example-
+        generateName: argocd-example-
       spec:
         entrypoint: main
         templates:
           - name: main
             plugin:
-              hello: { }
+              argocd:
+                serverUrl: https://my-argocd-instance.com/
+                actions:
+                  - sync:
+                      project: default
+                      app: guestbook
+                  - refresh:
+                      project: default
+                      app: guestbook
       ```
     workflows.argoproj.io/version: '>= v3.3'
   creationTimestamp: null
   labels:
     workflows.argoproj.io/configmap-type: ExecutorPlugin
-  name: hello-executor-plugin
+  name: argocd-executor-plugin
