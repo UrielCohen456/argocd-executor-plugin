@@ -4,8 +4,8 @@ build:
 	@argo executor-plugin build .
 
 apply: build
-	@kubectl apply -f argocd-executor-plugin-configmap.yaml
+	@kubectl apply -n argo -f argocd-executor-plugin-configmap.yaml
 
 submit:
-	@argo submit argocd-example-workflow.yaml
-
+	@kubectl apply -n argo -f example/rbac.yaml
+	@argo submit -n argo example/argocd-example-workflow.yaml

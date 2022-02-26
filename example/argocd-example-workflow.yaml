@@ -16,10 +16,10 @@ spec:
       plugin:
         argocd:
           serverUrl: https://my-argocd-instance.com/
-          actions:
-            - sync:
-                project: default
-                app: guestbook
-            - refresh:
-                project: default
-                app: guestbook
+      # actions:
+      #   - sync:
+      #       project: default
+      #       app: guestbook
+      #   - refresh:
+      #       project: default
+      #       app: guestbook
