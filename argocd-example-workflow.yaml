@@ -3,9 +3,16 @@ kind: Workflow
 metadata:
   generateName: argocd-example-
 spec:
+  serviceAccountName: workflow
   entrypoint: main
   templates:
     - name: main
+      # script:
+      #   image: python:alpine
+      #   command: [python]
+      #   source: |
+      #     print("test")
+
       plugin:
         argocd:
           serverUrl: https://my-argocd-instance.com/
