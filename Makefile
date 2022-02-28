@@ -9,5 +9,5 @@ apply: build
 	@kubectl apply -n argo -f out/argocd-executor-plugin-configmap.yaml
 	@kubectl apply -n argo -f example/rbac.yaml
 
-submit:
+submit: apply
 	@argo submit -n argo example/argocd-example-workflow.yaml

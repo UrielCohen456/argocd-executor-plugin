@@ -1,5 +1,6 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from pprint import pprint
 
 
 class Plugin(BaseHTTPRequestHandler):
@@ -48,6 +49,7 @@ class Plugin(BaseHTTPRequestHandler):
             return
 
         args = self.args()
+        pprint(args)
 
         if 'argocd' not in args['template'].get('plugin', {}):
             self.reply({})

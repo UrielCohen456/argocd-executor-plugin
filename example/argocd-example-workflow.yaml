@@ -7,19 +7,13 @@ spec:
   entrypoint: main
   templates:
     - name: main
-      # script:
-      #   image: python:alpine
-      #   command: [python]
-      #   source: |
-      #     print("test")
-
       plugin:
         argocd:
           serverUrl: https://my-argocd-instance.com/
-      # actions:
-      #   - sync:
-      #       project: default
-      #       app: guestbook
-      #   - refresh:
-      #       project: default
-      #       app: guestbook
+          actions:
+            - sync:
+                project: default
+                app: guestbook
+            - refresh:
+                project: default
+                app: guestbook

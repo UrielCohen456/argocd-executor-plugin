@@ -3,8 +3,9 @@ apiVersion: v1
 data:
   sidecar.container: |
     args:
-    - "import json\nfrom http.server import BaseHTTPRequestHandler, HTTPServer\n\n\nclass
-      Plugin(BaseHTTPRequestHandler):\n\n    def args(self):\n        return json.loads(self.rfile.read(int(self.headers.get('Content-Length'))))\n\n
+    - "import json\nfrom http.server import BaseHTTPRequestHandler, HTTPServer\nfrom pprint
+      import pprint\n\n\nclass Plugin(BaseHTTPRequestHandler):\n\n    def args(self):\n
+      \       return json.loads(self.rfile.read(int(self.headers.get('Content-Length'))))\n\n
       \   def reply(self, reply):\n        self.send_response(200)\n        self.end_headers()\n
       \       self.wfile.write(json.dumps(reply).encode(\"UTF-8\"))\n\n    def error(self,
       message: str):\n        self.reply({\n            'node': {\n                'phase':
@@ -18,13 +19,14 @@ data:
       'Failed', \n                'message': str.format(\"ArgoCD executor plugin failed:
       {}\", message),\n            }\n        })\n\n    def do_POST(self):\n        if
       self.path != '/api/v1/template.execute':\n            self.send_response(404)\n
-      \           self.end_headers()\n            return\n\n        args = self.args()\n\n
-      \       if 'argocd' not in args['template'].get('plugin', {}):\n            self.reply({})\n
-      \           return\n\n        self.success(\"synced app\")\n\n\nif __name__ == '__main__':\n
-      \   httpd = HTTPServer(('', 4355), Plugin)\n    httpd.serve_forever()\n"
+      \           self.end_headers()\n            return\n\n        args = self.args()\n
+      \       pprint(args)\n\n        if 'argocd' not in args['template'].get('plugin',
+      {}):\n            self.reply({})\n            return\n\n        self.success(\"synced
+      app\")\n\n\nif __name__ == '__main__':\n    httpd = HTTPServer(('', 4355), Plugin)\n
+      \   httpd.serve_forever()\n"
     command:
     - python
-    - -c
+    - -uc
     image: python:alpine
     name: argocd-executor-plugin
     ports:

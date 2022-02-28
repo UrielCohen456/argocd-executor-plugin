@@ -32,11 +32,9 @@ metadata:
 spec:
   sidecar:
     container:
-      command:
-        - python
-        - -c
-      image: python:alpine
       name: argocd-executor-plugin
+      image: python:alpine
+      command: [ python, -uc ]
       ports:
         - containerPort: 4355
       resources:
