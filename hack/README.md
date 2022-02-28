@@ -12,4 +12,4 @@ Have this tools installed:
 
 ## Setup testing cluster
 
-Run the following script: `./setup_cluster.sh`
+Run the following script: `./setup_env.sh`
