@@ -1,12 +1,10 @@
 <!-- This is an auto-generated file. DO NOT EDIT -->
-# argocd
+# Argo Workflows Argocd Executor Plugin
 
-* Needs: >= v3.3
-* Image: python:alpine
+This is an ArgoCD plugin that allows you to interact with an argocd instance of your choice.
+This is meant to be easily available and to be used in your ci/cd needs.
 
-This is an ArgoCD plugin that allows you to interact with an argocd instance of your choice
-
-Example:
+## Example:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -27,13 +25,9 @@ spec:
             - refresh:
                 project: default
                 app: guestbook
-```
 
+## Contributing
 
-Install:
-
-    kubectl apply -f argocd-executor-plugin-configmap.yaml
-
-Uninstall:
-	
-    kubectl delete cm argocd-executor-plugin 
+Currently I am developing this on my own as my interest in workflow plugins is growing. <br>
+However, you are free to send me a message or create pull request or an issue if you have anything to suggest. <br>
+To get started check the hack directory for setting up the dev environment
