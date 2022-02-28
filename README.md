@@ -25,6 +25,7 @@ spec:
             - refresh:
                 project: default
                 app: guestbook
+```
 
 ## Contributing
 
