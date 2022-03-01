@@ -2,7 +2,6 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pprint import pprint
 
-
 class Plugin(BaseHTTPRequestHandler):
 
     def args(self):
@@ -43,6 +42,8 @@ class Plugin(BaseHTTPRequestHandler):
         })
 
     def do_POST(self):
+        print("Started!")
+
         if self.path != '/api/v1/template.execute':
             self.send_response(404)
             self.end_headers()

@@ -34,7 +34,10 @@ spec:
     container:
       name: argocd-executor-plugin
       image: python:alpine
-      command: [ python, -uc ]
+      command:
+        - python
+        # - -u
+        - -c
       ports:
         - containerPort: 4355
       resources:
