@@ -42,8 +42,6 @@ class Plugin(BaseHTTPRequestHandler):
         })
 
     def do_POST(self):
-        print("Started!")
-
         if self.path != '/api/v1/template.execute':
             self.send_response(404)
             self.end_headers()

@@ -17,8 +17,8 @@ data:
       = { 'parameters': outputs }\n\n        self.reply(ret_val)\n\n    def fail(self,
       message: str):\n        self.reply({\n            'node': {\n                'phase':
       'Failed', \n                'message': str.format(\"ArgoCD executor plugin failed:
-      {}\", message),\n            }\n        })\n\n    def do_POST(self):\n        print(\"Started!\")\n\n
-      \       if self.path != '/api/v1/template.execute':\n            self.send_response(404)\n
+      {}\", message),\n            }\n        })\n\n    def do_POST(self):\n        if
+      self.path != '/api/v1/template.execute':\n            self.send_response(404)\n
       \           self.end_headers()\n            return\n\n        args = self.args()\n
       \       pprint(args)\n\n        if 'argocd' not in args['template'].get('plugin',
       {}):\n            self.reply({})\n            return\n\n        self.success(\"synced
@@ -26,6 +26,7 @@ data:
       \   httpd.serve_forever()\n"
     command:
     - python
+    - -u
     - -c
     image: python:alpine
     name: argocd-executor-plugin
