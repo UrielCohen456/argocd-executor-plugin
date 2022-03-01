@@ -8,7 +8,7 @@ This is meant to be easily available and to be used in your ci/cd needs.
 
 Currently I am developing this on my own as my interest in workflow plugins is growing. <br>
 However, you are free to send me a message or create pull request or an issue if you have anything to suggest. <br>
-To get started check the hack directory for setting up the dev environment
+To get started check the scripts directory for setting up the dev environment
 
 ## Example:
 

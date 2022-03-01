@@ -1,15 +1,21 @@
 # Get started
+
 Here you will have everything you need to get started developing and testing the plugin
 
 ## Prerequisites
 
 Have this tools installed:
+
 - Docker
 - kubectl
 - kind
 - argo (version v3.3.0-rc7)
 - make
 
-## Setup testing cluster
+## Create testing cluster
 
-Run the following script: `./setup_env.sh`
+Run the following script: `./create_cluster.sh`
+
+## Delete testing cluster
+
+Run the following script: `./delete_cluster.sh`
