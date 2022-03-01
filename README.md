@@ -16,6 +16,8 @@ To get started check the scripts directory for setting up the dev environment.
 - [x] Figure out how to get access to kubernetes resources from inside the pod
 - [x] Figure out how to get access to argocd binary (Build image that has it)
 - [x] Figure out how to get current namespace (not supported in client library in python)
+- [ ] Add argocd installation to the create_cluster.sh script
+- [ ] Add a few different applications to argocd in the create_cluster.sh script (More complexity over time)
 - [ ] Github actions pipeline to automatically build and test
 - [ ] Find way to get arguments from template
 - [ ] Build a simple json schema to validate inside the plugin
