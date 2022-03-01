@@ -15,6 +15,7 @@ rules:
     resources:
       - pods
     verbs:
+      - list
       - get
       - watch
       - patch

@@ -33,7 +33,7 @@ spec:
   sidecar:
     container:
       name: argocd-executor-plugin
-      image: python:alpine
+      image: urielc12/argocd-plugin:v0.1.0
       command:
         - python
         - -u
