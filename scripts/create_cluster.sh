@@ -18,3 +18,22 @@ fi
 echo "Creating context..."
 kubectl config set-context kind-$CLUSTER_NAME > /dev/null 2>&1
 kubectl config set-context --current --namespace argo > /dev/null 2>&1
+
+echo "Setting up the argo tools..."
+scripts/setup_argo_workflows.sh
+scripts/setup_argocd.sh
+make apply
+
+SECRET=$(kubectl get sa argo-server -n argo -o=jsonpath='{.secrets[0].name}')
+ARGO_TOKEN="Bearer $(kubectl get secret -n argo $SECRET -o=jsonpath='{.data.token}' | base64 --decode)"
+
+# Printing how to get started using the jwt token to authenticate to the argo server
+echo "----------------------------------------------------------------"
+echo 
+echo "Finished creating the cluster enviornment! To get started: "
+echo "1. Run 'make submit' to create a workflow running the plugin. "
+echo "2. Connect to the argocd server by typing localhost:8080 in your browser"
+echo "3. To connect to the argo server instead of using the argo cli: "
+echo "Copy the following token then port forward your argo-server service and use that token to login to it."
+echo 
+echo $ARGO_TOKEN
