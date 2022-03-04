@@ -15,9 +15,7 @@ Have this tools installed:
 
 ## Create testing cluster
 
-1. Run: `./create_cluster.sh`
-2. Run: `./setup_argo_workflows.sh`
-3. Run: `./setup_argocd.sh`
+Run the following script: `./create_cluster.sh`
 
 ## Delete testing cluster
 
