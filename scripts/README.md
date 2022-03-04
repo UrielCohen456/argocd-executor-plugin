@@ -6,15 +6,18 @@ Here you will have everything you need to get started developing and testing the
 
 Have this tools installed:
 
-- Docker
-- kubectl
-- kind
-- argo (version v3.3.0-rc7)
 - make
+- docker
+- kind
+- kubectl
+- argo (version v3.3.0-rc7)
+- argocd
 
 ## Create testing cluster
 
-Run the following script: `./create_cluster.sh`
+1. Run: `./create_cluster.sh`
+2. Run: `./setup_argo_workflows.sh`
+3. Run: `./setup_argocd.sh`
 
 ## Delete testing cluster
 

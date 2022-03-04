@@ -2,44 +2,6 @@
 apiVersion: v1
 data:
   sidecar.container: |
-    args:
-    - "import json\nfrom http.server import BaseHTTPRequestHandler, HTTPServer\nfrom pprint
-      import pprint\nfrom kubernetes import client, config, watch\n\nclass Plugin(BaseHTTPRequestHandler):\n
-      \   def args(self) -> any:\n        \"\"\"Returns the plugin template provided from
-      the workflow\"\"\"\n\n        return json.loads(self.rfile.read(int(self.headers.get('Content-Length'))))\n\n
-      \   def reply(self, reply: dict, code: int) -> None:\n        \"\"\"Sends a reply
-      back to the caller\"\"\"\n        self.send_response(code)\n        self.end_headers()\n
-      \       self.wfile.write(json.dumps(reply).encode(\"UTF-8\"))\n\n    def success(self,
-      message: str, outputs: list = None) -> None:\n        \"\"\"Sends a success message
-      to the caller\"\"\"\n        ret_val = {\n            'node': {\n                'phase':
-      'Succeeded', \n                'message': str.format(\"ArgoCD executor plugin succeeded:
-      {}\", message),\n            }\n        }\n\n        if outputs is not None:\n            ret_val['node'][\"outputs\"]
-      = { 'parameters': outputs }\n\n        self.reply(ret_val, 200)\n\n    def fail(self,
-      message: str) -> None:\n        \"\"\"Sends a fail message to the caller\"\"\"\n
-      \       self.reply({\n            'node': {\n                'phase': 'Failed',
-      \n                'message': str.format(\"ArgoCD executor plugin failed: {}\", message),\n
-      \           }\n        }, 503)\n\n    def error(self, message: str) -> None:\n        \"\"\"Sends
-      an error message to the caller\"\"\"\n        self.reply({\n            'node':
-      {\n                'phase': 'Error', \n                'message': str.format(\"ArgoCD
-      executor plugin error: {}\", message),\n            }\n        }, 400)\n\n    def
-      do_POST(self) -> None:\n        \"\"\"Receives the request from the caller and check
-      if it's valid. If it is, executes the plugin\"\"\"\n        if self.path != '/api/v1/template.execute':\n
-      \           self.reply({}, 404)\n            return\n\n        args = self.args()\n
-      \       pprint(args)\n\n        if 'argocd' not in args['template'].get('plugin',
-      {}):\n            self.reply({})\n            return\n\n        self.execute(args)\n\n\n
-      \   def execute(self, args: dict) -> None:\n        \"\"\"Executes the plugin and
-      talks to the argocd server\"\"\"\n        config.load_incluster_config()\n        v1
-      = client.CoreV1Api()\n        current_namespace = open(\"/var/run/secrets/kubernetes.io/serviceaccount/namespace\").read()\n\n
-      \       ret = v1.list_namespaced_pod(current_namespace)\n        for i in ret.items:\n
-      \           print(\"%s\\t%s\\t%s\" %\n                (i.status.pod_ip, i.metadata.namespace,
-      i.metadata.name))\n\n        # argocd = (\"/usr/local/bin/argocd\", \"-h\")\n        #
-      popen = subprocess.Popen(argocd, stdout=subprocess.PIPE)\n        # popen.wait()\n
-      \       # output = popen.stdout.read()\n\n        self.success(\"synced app\")\n\n\nif
-      __name__ == '__main__':\n    httpd = HTTPServer(('', 4355), Plugin)\n    httpd.serve_forever()\n"
-    command:
-    - python
-    - -u
-    - -c
     image: urielc12/argocd-plugin:v0.1.0
     name: argocd-executor-plugin
     ports:
@@ -63,30 +25,8 @@ kind: ConfigMap
 metadata:
   annotations:
     workflows.argoproj.io/description: |
-      This is an ArgoCD plugin that allows you to interact with an argocd instance of your choice
-
-      Example:
-
-      ```yaml
-      apiVersion: argoproj.io/v1alpha1
-      kind: Workflow
-      metadata:
-        generateName: argocd-example-
-      spec:
-        entrypoint: main
-        templates:
-          - name: main
-            plugin:
-              argocd:
-                serverUrl: https://my-argocd-instance.com/
-                actions:
-                  - sync:
-                      project: default
-                      app: guestbook
-                  - refresh:
-                      project: default
-                      app: guestbook
-      ```
+      This is an ArgoCD plugin that allows you to interact with an argocd instance of your choice.
+      For examples visit https://github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/examples
     workflows.argoproj.io/version: '>= v3.3'
   creationTimestamp: null
   labels:

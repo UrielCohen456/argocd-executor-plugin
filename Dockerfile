@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM curlimages/curl:7.81.0 as downloader
 USER root
 RUN VERSION=v2.2.5 && \
@@ -6,7 +7,9 @@ RUN VERSION=v2.2.5 && \
 
 FROM python:3.8-alpine3.15
 
-WORKDIR /tmp
+WORKDIR /app
 COPY --from=downloader /usr/local/bin/argocd /usr/local/bin/argocd
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
+COPY src/ .
+CMD [ "python", "-u", "main.py" ]

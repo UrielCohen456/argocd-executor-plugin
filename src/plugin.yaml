@@ -4,40 +4,14 @@ metadata:
   name: argocd
   annotations:
     workflows.argoproj.io/description: |
-      This is an ArgoCD plugin that allows you to interact with an argocd instance of your choice
-
-      Example:
-
-      ```yaml
-      apiVersion: argoproj.io/v1alpha1
-      kind: Workflow
-      metadata:
-        generateName: argocd-example-
-      spec:
-        entrypoint: main
-        templates:
-          - name: main
-            plugin:
-              argocd:
-                serverUrl: https://my-argocd-instance.com/
-                actions:
-                  - sync:
-                      project: default
-                      app: guestbook
-                  - refresh:
-                      project: default
-                      app: guestbook
-      ```
+      This is an ArgoCD plugin that allows you to interact with an argocd instance of your choice.
+      For examples visit https://github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/examples
     workflows.argoproj.io/version: '>= v3.3'
 spec:
   sidecar:
     container:
       name: argocd-executor-plugin
       image: urielc12/argocd-plugin:v0.1.0
-      command:
-        - python
-        - -u
-        - -c
       ports:
         - containerPort: 4355
       resources:

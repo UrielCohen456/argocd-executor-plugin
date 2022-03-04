@@ -1,9 +1,13 @@
 import json
+import subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pprint import pprint
 from kubernetes import client, config, watch
 
 class Plugin(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        return
+
     def args(self) -> any:
         """Returns the plugin template provided from the workflow"""
 
@@ -54,7 +58,6 @@ class Plugin(BaseHTTPRequestHandler):
             return
 
         args = self.args()
-        pprint(args)
 
         if 'argocd' not in args['template'].get('plugin', {}):
             self.reply({})
@@ -65,22 +68,21 @@ class Plugin(BaseHTTPRequestHandler):
         except Exception as e:
             self.error(str(e))
 
+    def argocd_command(self, *args) -> None:
+        argocd = ["/usr/local/bin/argocd"] + [arg for arg in args]
+        popen = subprocess.Popen(argocd, stdout=subprocess.PIPE)
+        popen.wait()
+        output = popen.stdout.read().decode('utf-8')
+        print(output)
 
     def execute(self, args: dict) -> None:
         """Executes the plugin and talks to the argocd server"""
         config.load_incluster_config()
         v1 = client.CoreV1Api()
         current_namespace = open("/var/run/secrets/kubernetes.io/serviceaccount/namespace").read()
-
-        ret = v1.list_namespaced_pod(current_namespace)
-        for i in ret.items:
-            print("%s\t%s\t%s" %
-                (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
-
-        # argocd = ("/usr/local/bin/argocd", "-h")
-        # popen = subprocess.Popen(argocd, stdout=subprocess.PIPE)
-        # popen.wait()
-        # output = popen.stdout.read()
+        pprint("args: {} current namespace: {}".format(args, current_namespace))
+        
+        self.argocd_command("app", "sync", "-h")
 
         self.success("synced app")
 
