@@ -1,9 +1,10 @@
 #!/bin/env bash
 
 # Install 3.3 version of argo workflows
-echo "Installing argo workflows v3.3.0-rc8..."
+WORKFLOWS_VERSION=v3.3.0
+echo "Installing argo workflows version=$WORKFLOWS_VERSION"
 kubectl create namespace argo > /dev/null 2>&1
-kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.3.0-rc8/install.yaml > /dev/null 2>&1
+kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/$WORKFLOWS_VERSION/install.yaml > /dev/null 2>&1
 
 # Configure argo workflows currectly
 echo "Configuring workflow conmtroller to support plugins..."

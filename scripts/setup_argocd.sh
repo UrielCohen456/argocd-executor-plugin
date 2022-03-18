@@ -1,9 +1,10 @@
 #!/bin/env bash
 
 # Install v2.2.5 version of argocd 
-echo "Installing argocd"
+ARGOCD_VERSION=v2.3.1
+echo "Installing argocd version=$ARGOCD_VERSION"
 kubectl create namespace argocd > /dev/null 2>&1
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.2.5/manifests/install.yaml
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/$ARGOCD_VERSION/manifests/install.yaml
 kubectl wait -n argocd --for=condition=available --timeout=180s --all deployments
 
 # Login to argocd instance
