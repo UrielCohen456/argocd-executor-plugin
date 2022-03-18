@@ -25,7 +25,7 @@ spec:
 
 ## Getting Started
 
-Head to the [scripts](scripts/README.md) directory to find out how to get the project up and running on your local machine for development and testing purposes. 
+Head to the [scripts](scripts/README.md) directory to find out how to get the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
@@ -48,7 +48,7 @@ To get started check the scripts directory for setting up the dev environment.
 - [x] Figure out how to get current namespace (not supported in client library in python)
 - [x] Add argocd installation to the create_cluster.sh script
 - [x] Add a few different applications to argocd in the create_cluster.sh script (More complexity over time)
-- [ ] Translate python server that works so far to go
+- [x] Translate python server that works so far to go
 - [ ] Github actions pipeline to automatically build and test
 - [ ] Find way to get arguments from template
 - [ ] Build a simple json schema to validate inside the plugin
