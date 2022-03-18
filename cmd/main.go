@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"os/exec"
 	"time"
 
 	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/common"
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -22,14 +22,20 @@ import (
 func main() {
 	ctx := context.WithValue(context.Background(), "namespace", common.Namespace());
 
+	output, err := exec.Command("argocd").Output()
+	if err!=nil {
+			fmt.Println(err.Error())
+	}
+	fmt.Println(string(output))
+
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		panic(fmt.Sprintf("Failed to load in cluster config: %q", err.Error()))
+		panic(err.Error())
 	}
 
 	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to create client set: %q", err.Error()))
+		panic(err.Error())
 	}
 
 	for {

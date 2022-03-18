@@ -1,1 +1,11 @@
+.gitignore
+.dockerignore
+Dockerfile
+LICENSE
+Makefile
+OWNERS
+README.md
+examples
+out
+scripts
 plugin.yaml

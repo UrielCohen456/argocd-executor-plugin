@@ -3,25 +3,22 @@
 FROM curlimages/curl:7.81.0 AS downloader
 WORKDIR /tmp
 RUN VERSION=v2.3.1 && \
-  curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/download/$VERSION/argocd-linux-amd64 && \
-  chmod +x argocd
+curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/download/$VERSION/argocd-linux-amd64 && \
+chmod +x argocd
 
-FROM golang:1.16-alpine AS build
+FROM golang:1.18-alpine AS build
 WORKDIR /app
 COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
-COPY src ./
-RUN GOOS=linux go build -o plugin
+COPY . .
+RUN GOOS=linux go build -o plugin cmd/main.go
 
 FROM alpine:3.15
 WORKDIR /app
+USER 8373
 COPY --from=downloader /tmp/argocd /usr/local/bin/argocd
-COPY --from=build /tmp/plugin ./plugin
+COPY --from=build /app/plugin ./plugin
+#RUN adduser -D -S argo -u 8737 
 
-RUN useradd -u 8737 argo && \
-  chowm argo /app/bin/plugin
-USER argo
-
-ENTRYPOINT [ "/app/bin/plugin" ]
-
+ENTRYPOINT [ "/app/plugin" ]
