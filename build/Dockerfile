@@ -12,7 +12,7 @@ COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 COPY . .
-RUN GOOS=linux go build -o plugin cmd/main.go
+RUN GOOS=linux go build -o plugin cmd/argocd-plugin/main.go
 
 FROM alpine:3.15
 WORKDIR /app

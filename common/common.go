@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
+// Returns the namespace the pod runs in.
 func Namespace() string {
 	// This way assumes you've set the POD_NAMESPACE environment variable using the downward API.
-	// This check has to be done first for backwards compatibility with the way InClusterConfig was originally set up
 	if ns, ok := os.LookupEnv("POD_NAMESPACE"); ok {
 		return ns
 	}

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os/exec"
 
-	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/common"
+	// "os/exec"
+
 	// "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -15,13 +15,11 @@ import (
 
 func ArgocdPlugin(ctx context.Context) func(w http.ResponseWriter, req *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
-		ctx := context.WithValue(ctx, "namespace", common.Namespace());
-
-		output, err := exec.Command("argocd").Output()
-		if err!=nil {
-				fmt.Println(err.Error())
-		}
-		fmt.Println(string(output))
+		// output, err := exec.Command("argocd").Output()
+		// if err!=nil {
+		// 		fmt.Println(err.Error())
+		// }
+		// fmt.Println(string(output))
 
 		config, err := rest.InClusterConfig()
 		if err != nil {

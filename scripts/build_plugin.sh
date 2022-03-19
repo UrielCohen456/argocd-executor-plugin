@@ -1,5 +1,5 @@
 #!/bin/env bash
 
 argo executor-plugin build ./deployments
-# mv cmd/README.md out/
-# mv cmd/argocd-executor-plugin-configmap.yaml out/
+docker build -t urielc12/argocd-plugin -f ./build/Dockerfile .
+kind load docker-image urielc12/argocd-plugin --name argo-workflows-plugin-argocd
