@@ -51,8 +51,7 @@ func TestArgocdPlugin(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			body, err := json.Marshal(&tt.request)
-			t.Log(err)
+			body, _ := json.Marshal(&tt.request)
 			request, _ := http.NewRequest(http.MethodPost, "/api/v1/template.execute", bytes.NewReader(body))
 			response := httptest.NewRecorder()
 

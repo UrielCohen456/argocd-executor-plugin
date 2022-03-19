@@ -1,4 +1,5 @@
 # Argo Workflows Argocd Executor Plugin
+**IN ACTIVE DEVELOPMENT**
 
 This is an ArgoCD plugin that allows you to interact with an argocd instance of your choice.
 This is meant to be easily available and to be used in your ci/cd needs.
