@@ -1,6 +1,7 @@
-package plugin
+package argocd
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,7 +9,7 @@ import (
 
 func TestArgocdPlugin(t *testing.T) {
 	t.Run("Should return handler func", func (t *testing.T) {
-		got := ArgocdPlugin()
+		got := ArgocdPlugin(context.Background())
 		assert.NotNil(t, got)
 	})	
 }
