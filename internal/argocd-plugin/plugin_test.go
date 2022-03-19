@@ -68,13 +68,6 @@ func TestArgocdPlugin(t *testing.T) {
 			want: ErrMarshallingBody.Error(),
 			status: http.StatusBadRequest,
 		},
-		{
-			name: "succeed marshalling body",
-			body: bytes.NewReader([]byte(`"lol": "test"`)),
-			headers: headerContentJson,
-			want: "Success",
-			status: http.StatusBadRequest,
-		},
 	}
 
 	for _, tt := range failTests {
@@ -94,49 +87,31 @@ func TestArgocdPlugin(t *testing.T) {
 		})
 	}
 
+  t.Run("succeed marshalling body and execute the request", func(t *testing.T) {
+    body := bytes.NewReader([]byte(
+`{
+  "workflow": {
+	  "metadata": {
+      "name": "test-template"
+    }
+  },
+  "template": {
+    "name": "argocd-plugin",
+    "inputs": {},
+    "outputs": {},
+    "plugin": {
+      "argocd": {
+      }
+    }
+	}
+}`))
+    request, _ := http.NewRequest(http.MethodPost, "/api/v1/template.execute", body)
+    request.Header.Set("Content-Type", "application/json")
+    response := httptest.NewRecorder()
+    handler.ServeHTTP(response, request)
+    
+    got := response.Code
+
+    common.AssertStatus(t, got, http.StatusOK)
+  })
 }
-
-// var tests = []struct {
-// 		name string
-// 		request executor.ExecuteTemplateArgs
-// 		want string
-// 		status int
-// 	}{
-// 		{
-// 			"parse body and return success", 
-// 			executor.ExecuteTemplateArgs{
-// 				Workflow: &executor.Workflow{
-// 					ObjectMeta: executor.ObjectMeta{Name: "workflow"},
-// 				},
-// 				Template: &v1alpha1.Template{
-// 					Name: "my-tmpl",
-// 					Plugin: &v1alpha1.Plugin{
-// 						Object: v1alpha1.Object{Value: json.RawMessage(
-// 							`{
-// 								"argocd": {}
-// 							}`)},	
-// 					},
-// 				},
-// 			},	
-// 			`{"node": { "phase": "Succeeded", "message": "Succeeded"}}`,
-// 			http.StatusOK,
-// 		},
-// 	}
-
-// 	kubeClient := fake.NewSimpleClientset()
-// 	argocdPlugin := ArgocdPlugin(kubeClient, "argo")
-// 	handler := http.HandlerFunc(argocdPlugin)
-
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			body, _ := json.Marshal(&tt.request)
-// 			request, _ := http.NewRequest(http.MethodPost, "/api/v1/template.execute", bytes.NewReader(body))
-// 			response := httptest.NewRecorder()
-
-// 			handler.ServeHTTP(response, request)
-
-			
-// 			common.AssertResponseBody(t, response.Body.String(), tt.want)
-// 			common.AssertStatus(t, response.Code, tt.status)
-// 		})
-// 	}

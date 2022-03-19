@@ -35,16 +35,12 @@ func ArgocdPlugin(kubeClient kubernetes.Interface, namespace string) func(w http
 			return
 		}
 
-		log.Printf("Recieved body: %v", string(body))
-
 		args := executor.ExecuteTemplateArgs{}
 		if err := json.Unmarshal(body, &args); err != nil {
 			log.Print(ErrMarshallingBody)
 			http.Error(w, ErrMarshallingBody.Error(), http.StatusBadRequest)
 			return
 		}
-
-		log.Printf("Received args: %v", args)
 
 		// channel, text, err := parsPayload(args)
 		// if err != nil {
