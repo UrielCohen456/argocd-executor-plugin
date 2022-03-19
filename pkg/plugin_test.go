@@ -1,4 +1,4 @@
-package argocd
+package plugin
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/common"
+	"github.com/argoproj/argo-workflows/v3/pkg/plugins/executor"
 	"k8s.io/client-go/kubernetes/fake"
 )
 
@@ -17,6 +18,23 @@ var (
 	headerEmpty				 			= map[string]string{}
 	headerContentJson 			= map[string]string{"Content-Type": "application/json"}
 	headerContentEncoded		= map[string]string{"Content-Type": "application/x-www-form-urlencoded"}
+	validWorkflowBody 			= []byte(
+`{
+  "workflow": {
+	  "metadata": {
+      "name": "test-template"
+    }
+  },
+  "template": {
+    "name": "plugin",
+    "inputs": {},
+    "outputs": {},
+    "plugin": {
+      "any": {
+      }
+    }
+	}
+}`)
 )
 
 type errReader int
@@ -25,12 +43,29 @@ func (errReader) Read(p []byte) (n int, err error) {
     return 0, errors.New("Read error")
 }
 
+type executorSpy struct {
+
+	Called 	bool
+	Fail		bool
+}
+
+func (e *executorSpy) Execute(args executor.ExecuteTemplateArgs) (executor.ExecuteTemplateResponse, error) {
+	var err error = nil
+
+	if e.Fail {
+		err = ErrExecutingPlugin
+	}
+	e.Called = true
+
+	return executor.ExecuteTemplateResponse{}, err
+}
+
 func TestArgocdPlugin(t *testing.T) {
-	// test trying to invoke execute on argocd action
 	// test returning currect result based on input
 
 	kubeClient := fake.NewSimpleClientset()
-	argocdPlugin := ArgocdPlugin(kubeClient, "argo")
+  spy := executorSpy{}
+	argocdPlugin := ArgocdPlugin(&spy, kubeClient, "argo")
 	handler := http.HandlerFunc(argocdPlugin)
 
 	var failTests = []struct {
@@ -80,38 +115,47 @@ func TestArgocdPlugin(t *testing.T) {
 			handler.ServeHTTP(response, request)
 			
 			got := strings.Trim(response.Body.String(), "\n")
-			gotStatus := response.Code
+			gotStatus := response.Result().StatusCode
 
 			common.AssertResponseBody(t, got, tt.want)
 			common.AssertStatus(t, gotStatus, tt.status)
 		})
 	}
 
-  t.Run("succeed marshalling body and execute the request", func(t *testing.T) {
-    body := bytes.NewReader([]byte(
-`{
-  "workflow": {
-	  "metadata": {
-      "name": "test-template"
-    }
-  },
-  "template": {
-    "name": "argocd-plugin",
-    "inputs": {},
-    "outputs": {},
-    "plugin": {
-      "argocd": {
-      }
-    }
+	var execTests = []struct {
+		name string
+		fail bool
+		status int
+	}{
+		{
+			name: "exec without fail",
+			fail: false,
+			status: http.StatusOK,
+		},
+		{
+			name: "exec fails",
+			fail: true,
+			status: http.StatusInternalServerError,
+		},
 	}
-}`))
-    request, _ := http.NewRequest(http.MethodPost, "/api/v1/template.execute", body)
-    request.Header.Set("Content-Type", "application/json")
-    response := httptest.NewRecorder()
-    handler.ServeHTTP(response, request)
-    
-    got := response.Code
 
-    common.AssertStatus(t, got, http.StatusOK)
-  })
+	body := validWorkflowBody
+	for _, tt := range execTests {
+		t.Run(tt.name, func(t *testing.T) {
+			spy.Called = false
+			spy.Fail = tt.fail
+			request, _ := http.NewRequest(http.MethodPost, "/api/v1/template.execute", bytes.NewReader(body))
+			request.Header.Set("Content-Type", "application/json")
+			response := httptest.NewRecorder()
+			handler.ServeHTTP(response, request)
+			
+			if !spy.Called && !tt.fail {
+				t.Error("Executor was not called")
+			}
+
+			got := response.Result().StatusCode
+
+			common.AssertStatus(t, got, tt.status)
+		})
+  }
 }

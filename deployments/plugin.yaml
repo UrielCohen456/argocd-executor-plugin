@@ -13,7 +13,7 @@ spec:
       name: argocd-executor-plugin
       image: urielc12/argocd-plugin
       ports:
-        - containerPort: 4355
+        - containerPort: 3000
       resources:
         requests:
           cpu: 100m

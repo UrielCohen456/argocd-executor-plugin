@@ -1,4 +1,4 @@
-package types
+package argocd
 
 // wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
 //  "github.com/argoproj/argo-workflows/v3/pkg/plugins/executor"

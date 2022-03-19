@@ -7,7 +7,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/common"
-	plugin "github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/internal/argocd-plugin"
+	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/pkg/plugin"
 )
 
 func main() {
@@ -21,6 +21,6 @@ func main() {
 		panic(err.Error())
 	}
 
-	http.HandleFunc("/api/v1/template.execute",  plugin.ArgocdPlugin(client, common.Namespace()))
-	http.ListenAndServe(":4355", nil)
+	http.HandleFunc("/api/v1/template.execute", plugin.ArgocdPlugin(client, common.Namespace()))
+	http.ListenAndServe(":3000", nil)
 }
