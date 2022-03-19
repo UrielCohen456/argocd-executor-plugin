@@ -21,6 +21,6 @@ func main() {
 		panic(err.Error())
 	}
 
-	http.HandleFunc("/api/v1/template.execute", plugin.ArgocdPlugin(client, common.Namespace()))
+	http.HandleFunc("/api/v1/template.execute", plugin.ArgocdPlugin(nil, client, common.Namespace()))
 	http.ListenAndServe(":3000", nil)
 }
