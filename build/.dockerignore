@@ -1,11 +1,9 @@
 .gitignore
-.dockerignore
-Dockerfile
 LICENSE
 Makefile
 OWNERS
 README.md
+build
 examples
-out
+deployments
 scripts
-plugin.yaml

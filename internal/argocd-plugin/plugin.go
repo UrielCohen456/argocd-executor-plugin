@@ -1,44 +1,36 @@
-package main
+package plugin
 
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os/exec"
-	"time"
 
 	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/common"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	// Uncomment to load all auth plugins
-	// _ "k8s.io/client-go/plugin/pkg/client/auth"
-	// Or uncomment to load specific auth plugins
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/azure"
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/openstack"
 )
 
-func main() {
-	ctx := context.WithValue(context.Background(), "namespace", common.Namespace());
+func ArgocdPlugin(ctx context.Context) func(w http.ResponseWriter, req *http.Request) {
+	return func(w http.ResponseWriter, req *http.Request) {
+		ctx := context.WithValue(ctx, "namespace", common.Namespace());
 
-	output, err := exec.Command("argocd").Output()
-	if err!=nil {
-			fmt.Println(err.Error())
-	}
-	fmt.Println(string(output))
+		output, err := exec.Command("argocd").Output()
+		if err!=nil {
+				fmt.Println(err.Error())
+		}
+		fmt.Println(string(output))
 
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		panic(err.Error())
-	}
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			panic(err.Error())
+		}
 
-	clientSet, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
+		clientSet, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			panic(err.Error())
+		}
 
-	for {
 		pods, err := clientSet.CoreV1().Pods(ctx.Value("namespace").(string)).List(ctx, metav1.ListOptions{})
 		if err != nil {
 			panic(err.Error())
@@ -55,8 +47,5 @@ func main() {
 		// } else {
 		// 	fmt.Printf("Found example-xxxxx pod in default namespace\n")
 		// }
-
-		time.Sleep(10 * time.Second)
 	}
 }
-

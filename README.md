@@ -41,6 +41,13 @@ Currently I am developing this on my own as my interest in workflow plugins is g
 However, you are free to send me a message or create pull request or an issue if you have anything to suggest. <br>
 To get started check the scripts directory for setting up the dev environment.
 
+### Goals
+
+The goals of this plugin is to enable native usage of argocd actions inside workflows for these purposes:
+
+1. CI/CD + Testing - Steps that require a sync to an app and various e2e testing modules
+2. Resource automation - Steps that require you to generate new resources and delete resources
+
 ### TODO:
 
 - [x] Figure out how to get access to kubernetes resources from inside the pod

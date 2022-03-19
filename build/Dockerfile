@@ -16,7 +16,7 @@ RUN GOOS=linux go build -o plugin cmd/main.go
 
 FROM alpine:3.15
 WORKDIR /app
-USER 8373
+USER 1000
 COPY --from=downloader /tmp/argocd /usr/local/bin/argocd
 COPY --from=build /app/plugin ./plugin
 #RUN adduser -D -S argo -u 8737 
