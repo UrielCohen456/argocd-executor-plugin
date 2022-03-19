@@ -1,10 +1,10 @@
 .DEFAULT_GOAL := apply
 
-# Local build
+.PHONY: build
 build:
 	@scripts/build_plugin.sh
 
-apply: build
+apply: 
 	@kubectl apply -n argo -f deployments/argocd-executor-plugin-configmap.yaml
 	@kubectl apply -n argo -f examples/rbac.yaml
 

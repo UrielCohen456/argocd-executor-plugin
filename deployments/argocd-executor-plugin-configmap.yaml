@@ -2,7 +2,7 @@
 apiVersion: v1
 data:
   sidecar.container: |
-    image: urielc12/argocd-plugin:v0.1.0
+    image: urielc12/argocd-plugin
     name: argocd-executor-plugin
     ports:
     - containerPort: 4355

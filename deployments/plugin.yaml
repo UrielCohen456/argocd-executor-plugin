@@ -11,7 +11,7 @@ spec:
   sidecar:
     container:
       name: argocd-executor-plugin
-      image: urielc12/argocd-plugin:v0.1.0
+      image: urielc12/argocd-plugin
       ports:
         - containerPort: 4355
       resources:

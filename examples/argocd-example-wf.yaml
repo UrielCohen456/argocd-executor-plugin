@@ -4,18 +4,18 @@ metadata:
   generateName: argocd-example-
 spec:
   ttlStrategy:
-    secondsAfterCompletion: 60
+    secondsAfterCompletion: 300
+    secondsAfterFailure: 300
+    secondsAfterSuccess: 300
   serviceAccountName: workflow
   entrypoint: main
   templates:
     - name: main
       plugin:
         argocd:
-          serverUrl: https://my-argocd-instance.com/
+          serverUrl: argocd-server.argocd.svc.cluster.local
           actions:
             - sync:
                 project: default
-                app: guestbook
-            - refresh:
-                project: default
-                app: guestbook
+                apps:
+                  - guestbook

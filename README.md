@@ -20,7 +20,8 @@ spec:
           actions:
             - sync:
                 project: guestbook
-                app: guestbook
+                apps:
+                  - guestbook
 ```
 
 ## Getting Started
