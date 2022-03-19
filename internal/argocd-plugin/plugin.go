@@ -36,7 +36,7 @@ func ArgocdPlugin(kubeClient kubernetes.Interface, namespace string) func(w http
 		}
 
 		args := executor.ExecuteTemplateArgs{}
-		if err := json.Unmarshal(body, &args); err != nil {
+		if err := json.Unmarshal(body, &args); err != nil || args.Workflow == nil || args.Template == nil {
 			log.Print(ErrMarshallingBody)
 			http.Error(w, ErrMarshallingBody.Error(), http.StatusBadRequest)
 			return

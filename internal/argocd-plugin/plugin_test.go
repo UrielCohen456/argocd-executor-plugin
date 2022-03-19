@@ -63,7 +63,7 @@ func TestArgocdPlugin(t *testing.T) {
 		},
 		{
 			name: "fail marshalling body",
-			body: bytes.NewReader([]byte(`"lol": "test"`)),
+			body: bytes.NewReader([]byte(`{"lol": "test"}`)),
 			headers: headerContentJson,
 			want: ErrMarshallingBody.Error(),
 			status: http.StatusBadRequest,
