@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,31 +10,41 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 	// metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
- 	"github.com/argoproj/argo-workflows/v3/pkg/plugins/executor"
+	"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
+	"github.com/argoproj/argo-workflows/v3/pkg/plugins/executor"
+)
+
+var (
+	ErrWrongContentType		= errors.New("Content-Type header is not set to 'appliaction/json'")
+	ErrReadingBody		 		= errors.New("Couldn't read request body")
+	ErrMarshallingBody		= errors.New("Couldn't unmrashal request body")
 )
 
 func ArgocdPlugin(kubeClient kubernetes.Interface, namespace string) func(w http.ResponseWriter, req *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
-		if req.Body == http.NoBody {
-			log.Printf("No request body present")
-			http.Error(w, "No request body present", http.StatusBadRequest)
+		if header := req.Header.Get("Content-Type"); header == "" || header != "application/json" {
+			log.Print(ErrWrongContentType)
+			http.Error(w, ErrWrongContentType.Error(), http.StatusBadRequest)
 			return
 		}
 
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
-			log.Printf("Error reading body: %v", err)
-			http.Error(w, "couldn't read body", http.StatusBadRequest)
+			log.Print(ErrReadingBody)
+			http.Error(w, ErrReadingBody.Error(), http.StatusBadRequest)
 			return
 		}
 
+		log.Printf("Recieved body: %v", string(body))
+
 		args := executor.ExecuteTemplateArgs{}
-		if err := args.Template.Unmarshal(body); err != nil {
-			log.Printf("Error unmrashalling body: %v", err)
-			http.Error(w, "couldn't unmrashal body", http.StatusBadRequest)
+		if err := json.Unmarshal(body, &args); err != nil {
+			log.Print(ErrMarshallingBody)
+			http.Error(w, ErrMarshallingBody.Error(), http.StatusBadRequest)
 			return
 		}
-		log.Printf("%v", args)
+
+		log.Printf("Received args: %v", args)
 
 		// channel, text, err := parsPayload(args)
 		// if err != nil {
@@ -41,11 +52,14 @@ func ArgocdPlugin(kubeClient kubernetes.Interface, namespace string) func(w http
 		// 	return
 		// }
 
-		resp := make(map[string]map[string]string)
-		resp["node"] = make(map[string]string)
-		resp["node"]["phase"] = "Succeeded"
-		resp["node"]["message"] = fmt.Sprintf("ArgoCD command succeeded: %s", namespace)
-		resp["node"]["debug"] = fmt.Sprint(args) 
+		resp := executor.ExecuteTemplateResponse{
+			Body: executor.ExecuteTemplateReply{
+				Node: &v1alpha1.NodeResult{
+					Phase: v1alpha1.NodePhase("Succeeded"),
+					Message: fmt.Sprintf("ArgoCD command succeeded: %s", namespace),
+				},
+			},
+		}
 
 		jsonResp, err := json.Marshal(resp)
 		if err != nil {

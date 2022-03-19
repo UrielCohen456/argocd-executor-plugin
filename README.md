@@ -1,8 +1,8 @@
-# Argocd Executor Plugin
-**IN ACTIVE DEVELOPMENT**
-
-This is an ArgoCD plugin that allows you to interact with an argocd instance of your choice.
-This is meant to be easily available and to be used in your ci/cd needs.
+<div align="center">
+  <h1 align="center">Argocd Executor Plugin</h1>
+  <p align="center">An <a href="https://github.com/argoproj/argo-workflows/blob/master/docs/executor_plugins.md">Executor Plugin</a> for <a href="https://argoproj.github.io/argo-workflows/">Argo Workflows</a> that lets you interact with ArgoCD servers </br>
+  <b>In Active Development</b></p>
+</div>
 
 ## Example Usage
 
@@ -23,7 +23,10 @@ spec:
                 project: guestbook
                 apps:
                   - guestbook
+                  - guestbook-backend
 ```
+
+</br>
 
 ## Getting Started
 
@@ -36,6 +39,8 @@ You will need to have a working [Argo Workflows](https://argoproj.github.io/argo
 ### Installing
 
 Read how to install the plugin in your Argo Workflows instance [here](out/README.md).
+
+</br>
 
 ## Contributing
 
