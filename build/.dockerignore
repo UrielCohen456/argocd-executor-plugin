@@ -1,9 +1,0 @@
-.gitignore
-LICENSE
-Makefile
-OWNERS
-README.md
-build
-examples
-deployments
-scripts

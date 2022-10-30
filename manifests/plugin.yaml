@@ -4,14 +4,23 @@ metadata:
   name: argocd
   annotations:
     workflows.argoproj.io/description: |
-      This is an ArgoCD plugin that allows you to interact with an argocd instance of your choice.
+      This is an Argo CD plugin that allows you to interact with an argocd instance of your choice.
       For examples visit https://github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/examples
     workflows.argoproj.io/version: '>= v3.3'
 spec:
   sidecar:
     container:
-      name: argocd-executor-plugin
-      image: urielc12/argocd-plugin
+      name: argocd
+      image: urielc12/argocd-plugin:local
+      imagePullPolicy: Never
+      env:
+        - name: ARGOCD_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: argocd-sync-token
+              key: jwt.txt
+        - name: ARGOCD_SERVER
+          value: argocd-server.argocd.svc.cluster.local
       ports:
         - containerPort: 3000
       resources:
@@ -24,7 +33,6 @@ spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
-        readOnlyRootFilesystem: true
         allowPrivilegeEscalation: false
         capabilities:
           drop:

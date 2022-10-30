@@ -1,4 +1,4 @@
-package plugin
+package argocd
 
 import (
 	"bytes"
@@ -9,9 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/common"
 	"github.com/argoproj/argo-workflows/v3/pkg/plugins/executor"
-	"k8s.io/client-go/kubernetes/fake"
+	"github.com/magiconair/properties/assert"
 )
 
 var (
@@ -39,33 +38,25 @@ var (
 
 type errReader int
 
-func (errReader) Read(p []byte) (n int, err error) {
-    return 0, errors.New("Read error")
+func (errReader) Read(_ []byte) (n int, err error) {
+    return 0, errors.New("read error")
 }
 
 type executorSpy struct {
-
 	Called 	bool
-	Fail		bool
 }
 
-func (e *executorSpy) Execute(args executor.ExecuteTemplateArgs) (executor.ExecuteTemplateResponse, error) {
-	var err error = nil
-
-	if e.Fail {
-		err = ErrExecutingPlugin
-	}
+func (e *executorSpy) Execute(_ executor.ExecuteTemplateArgs) executor.ExecuteTemplateReply {
 	e.Called = true
 
-	return executor.ExecuteTemplateResponse{}, err
+	return executor.ExecuteTemplateReply{}
 }
 
 func TestArgocdPlugin(t *testing.T) {
-	// test returning currect result based on input
+	// test returning correct result based on input
 
-	kubeClient := fake.NewSimpleClientset()
-  spy := executorSpy{}
-	argocdPlugin := ArgocdPlugin(&spy, kubeClient, "argo")
+  	spy := executorSpy{}
+	argocdPlugin := ArgocdPlugin(&spy)
 	handler := http.HandlerFunc(argocdPlugin)
 
 	var failTests = []struct {
@@ -76,32 +67,32 @@ func TestArgocdPlugin(t *testing.T) {
 		status int
 	}{
 		{
-			name: "fail header content-type is empty",
-			body: nil,
+			name:    "fail header content-type is empty",
+			body:    nil,
 			headers: headerEmpty,
-			want: ErrWrongContentType.Error(),
-			status: http.StatusBadRequest,
+			want:    ErrWrongContentType.Error(),
+			status:  http.StatusBadRequest,
 		},
 		{
-			name: "fail header content-type is not application/json",
-			body: nil,
+			name:    "fail header content-type is not application/json",
+			body:    nil,
 			headers: headerContentEncoded,
-			want: ErrWrongContentType.Error(),
-			status: http.StatusBadRequest,
+			want:    ErrWrongContentType.Error(),
+			status:  http.StatusBadRequest,
 		},
 		{
-			name: "fail reading body",
-			body: errReader(0),
+			name:    "fail reading body",
+			body:    errReader(0),
 			headers: headerContentJson,
-			want: ErrReadingBody.Error(),
-			status: http.StatusBadRequest,
+			want:    ErrReadingBody.Error(),
+			status:  http.StatusBadRequest,
 		},
 		{
-			name: "fail marshalling body",
-			body: bytes.NewReader([]byte(`{"lol": "test"}`)),
+			name:    "fail marshalling body",
+			body:    bytes.NewReader([]byte(`{"lol": "test"}`)),
 			headers: headerContentJson,
-			want: ErrMarshallingBody.Error(),
-			status: http.StatusBadRequest,
+			want:    ErrMarshallingBody.Error(),
+			status:  http.StatusBadRequest,
 		},
 	}
 
@@ -117,8 +108,8 @@ func TestArgocdPlugin(t *testing.T) {
 			got := strings.Trim(response.Body.String(), "\n")
 			gotStatus := response.Result().StatusCode
 
-			common.AssertResponseBody(t, got, tt.want)
-			common.AssertStatus(t, gotStatus, tt.status)
+			assert.Equal(t, got, tt.want)
+			assert.Equal(t, gotStatus, tt.status)
 		})
 	}
 
@@ -143,19 +134,20 @@ func TestArgocdPlugin(t *testing.T) {
 	for _, tt := range execTests {
 		t.Run(tt.name, func(t *testing.T) {
 			spy.Called = false
-			spy.Fail = tt.fail
 			request, _ := http.NewRequest(http.MethodPost, "/api/v1/template.execute", bytes.NewReader(body))
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			handler.ServeHTTP(response, request)
 			
 			if !spy.Called && !tt.fail {
-				t.Error("Executor was not called")
+				t.Error("ApiExecutor was not called")
 			}
 
 			got := response.Result().StatusCode
 
-			common.AssertStatus(t, got, tt.status)
+			assert.Equal(t, got, tt.status)
+			assert.Equal(t, got, tt.status)
 		})
   }
 }
+

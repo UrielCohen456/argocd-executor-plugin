@@ -13,9 +13,19 @@ spec:
     - name: main
       plugin:
         argocd:
-          serverUrl: argocd-server.argocd.svc.cluster.local
+          # `actions` is a nested list. Items of inner arrays run in parallel. Top-level arrays run in sequence.
+          # In this example, each inner array has only one item. The syncs run in sequence.
           actions:
-            - sync:
-                project: default
-                apps:
-                  - guestbook
+            # TODO: support other action types, e.g. `cluster` and `repository`.
+            - - app:
+                  sync:
+                    apps:
+                      - name: guestbook
+                    options:
+                      - ServerSideApply=true
+                timeout: 10s
+            # Uncomment this to test a failed sync.
+#            - - app:
+#                  sync:
+#                    apps:
+#                      - name: not-real

@@ -1,9 +1,11 @@
-#!/bin/env bash
+#!/usr/bin/env bash
+
+set -e
 
 CLUSTER_NAME=argo-workflows-plugin-argocd
 
 cluster_exists=false
-while read line; do
+while read -r line; do
   if [ "$line" = "$CLUSTER_NAME" ]; then
     cluster_exists=true
   fi

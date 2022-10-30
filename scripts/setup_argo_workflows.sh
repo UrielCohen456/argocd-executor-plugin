@@ -1,12 +1,14 @@
 #!/bin/env bash
 
-# Install 3.3 version of argo workflows
-WORKFLOWS_VERSION=v3.3.0
-echo "Installing argo workflows version=$WORKFLOWS_VERSION"
-kubectl create namespace argo > /dev/null 2>&1
-kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/$WORKFLOWS_VERSION/install.yaml > /dev/null 2>&1
+set -e
 
-# Configure argo workflows currectly
-echo "Configuring workflow conmtroller to support plugins..."
-kubectl -n argo set env deployment/workflow-controller ARGO_EXECUTOR_PLUGINS=true > /dev/null 2>&1
-kubectl rollout restart -n argo deployment workflow-controller > /dev/null 2>&1
+# Install Argo Workflows
+WORKFLOWS_VERSION=v3.4.2
+echo "Installing Argo Workflows version=$WORKFLOWS_VERSION"
+kubectl create namespace argo --dry-run=server && kubectl create namespace argo
+kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-workflows/$WORKFLOWS_VERSION/manifests/quick-start-postgres.yaml
+
+# Configure Argo Workflows
+echo "Configuring workflow controller to support plugins..."
+kubectl -n argo set env deployment/workflow-controller ARGO_EXECUTOR_PLUGINS=true
+kubectl rollout restart -n argo deployment workflow-controller

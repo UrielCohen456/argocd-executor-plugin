@@ -1,18 +1,28 @@
 .DEFAULT_GOAL := apply
 
+.PHONY: setup
+setup:
+	bash ./scripts/setup_cluster.sh
+
 .PHONY: build
 build:
-	@scripts/build_plugin.sh
+	go mod tidy
+	docker build --load -t urielc12/argocd-plugin:local -f ./Dockerfile .
+	kind load docker-image urielc12/argocd-plugin:local --name argo-workflows-plugin-argocd
 
-apply: 
-	@kubectl apply -n argo -f deployments/argocd-executor-plugin-configmap.yaml
-	@kubectl apply -n argo -f examples/rbac.yaml
+.PHONY: manifests
+manifests:
+	argo executor-plugin build ./manifests
 
-submit: 
-	@argo submit -n argo examples/argocd-example-wf.yaml
+.PHONY: apply
+apply: manifests
+	kubectl apply -n argo -f deployments/argocd-executor-plugin-configmap.yaml
+	kubectl apply -n argo -f examples/rbac.yaml
 
-setup:
-	@scripts/create_cluster.sh
+.PHONY: submit
+submit:
+	argo submit -n argo examples/argocd-example-wf.yaml --serviceaccount workflow
 
+.PHONY: clean
 clean:
-	@scripts/delete_cluster.sh
+	bash scripts/delete_cluster.sh

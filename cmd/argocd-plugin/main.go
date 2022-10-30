@@ -1,26 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
 
-	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/common"
-	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/pkg/plugin"
+	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/internal"
 )
 
 func main() {
-	config, err := rest.InClusterConfig()
+	client, err := apiclient.NewClient(&apiclient.ClientOptions{
+		// TODO: make this configurable by passing a root CA.
+		Insecure: true,
+	})
+	if err != nil {
+		panic(fmt.Sprintf("failed to initialize Argo CD API client: %s", err))
+	}
+	http.HandleFunc("/api/v1/template.execute", argocd.ArgocdPlugin(argocd.NewApiExecutor(client)))
+	err = http.ListenAndServe(":3000", nil)
 	if err != nil {
 		panic(err.Error())
 	}
-
-	client, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	http.HandleFunc("/api/v1/template.execute", plugin.ArgocdPlugin(nil, client, common.Namespace()))
-	http.ListenAndServe(":3000", nil)
 }
