@@ -1,4 +1,4 @@
-module github.com/UrielCohen456/argo-workflows-argocd-executor-plugin
+module github.com/crenshaw-dev/argocd-executor-plugin
 
 go 1.19
 
