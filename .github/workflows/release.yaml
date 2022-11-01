@@ -32,17 +32,30 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Update plugin.yaml image tag
+        id: manifests
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.spec.sidecar.container.image = "crenshawdotdev/argocd-executor-plugin:v0.0.1"' manifests/plugin.yaml
+      - name: Update install manifest
+        run: |
+          # Download the binary
+          curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.3/argo-darwin-amd64.gz
+          gunzip argo-darwin-amd64.gz
+          chmod +x argo-darwin-amd64
+          argo-darwin-amd64 executor-plugin build ./manifests
       - name: Push release tag
         run: |
           set -ue
           
           git config --global user.email "${GIT_EMAIL}"
           git config --global user.name "${GIT_USERNAME}"
+          
+          git commit manifests/ -m "Bump version to $RELEASE_TAG"
+          git push origin HEAD
 
           git tag ${RELEASE_TAG}
           git push origin ${RELEASE_TAG} --force
-
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
         env:
