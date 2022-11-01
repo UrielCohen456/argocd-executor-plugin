@@ -11,7 +11,7 @@ data:
           name: argocd-sync-token
     - name: ARGOCD_SERVER
       value: argocd-server.argocd.svc.cluster.local
-    image: crenshawdotdev/argocd-executor-plugin:v0.0.1
+    image: crenshawdotdev/argocd-executor-plugin:$RELEASE_TAG
     imagePullPolicy: Never
     name: argocd
     ports:
