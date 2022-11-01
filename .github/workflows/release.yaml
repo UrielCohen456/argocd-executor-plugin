@@ -1,19 +1,17 @@
-name: Create argocd-executor-plugin release
+name: Create release
 on:
   workflow_dispatch:
     inputs:
       tag:
+        required: true
+    secrets:
+      DOCKERHUB_PASSWORD:
         required: true
 
 permissions:
   contents: read
 
 jobs:
-  build-and-push:
-    uses: crenshaw-dev/argocd-executor-plugin/.github/workflows/build.yaml@main
-    with:
-      tag: ${{ github.event.inputs.tag }}
-    if: github.repository == 'crenshaw-dev/argocd-executor-plugin'
   prepare-release:
     permissions:
       contents: write # To push changes to release branch
@@ -25,6 +23,12 @@ jobs:
       GIT_EMAIL: 350466+crenshaw-dev@users.noreply.github.com
       RELEASE_TAG: ${{ github.event.inputs.tag }}
     steps:
+      - uses: crenshaw-dev/argocd-executor-plugin/.github/workflows/build.yaml@main
+        with:
+          tag: ${{ github.event.inputs.tag }}
+        secrets:
+          DOCKERHUB_PASSWORD: ${{ github.event.secrets.DOCKERHUB_PASSWORD }}
+        if: github.repository == 'crenshaw-dev/argocd-executor-plugin'
       - name: Checkout code
         uses: actions/checkout@v3
         with:
@@ -39,7 +43,7 @@ jobs:
           git config --global user.name "${GIT_USERNAME}"
 
           git tag ${RELEASE_TAG}
-          git push origin ${RELEASE_TAG}
+          git push origin ${RELEASE_TAG} --force
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
@@ -49,3 +53,5 @@ jobs:
           name: ${{ env.RELEASE_TAG }}
           tag_name: ${{ env.RELEASE_TAG }}
           generate_release_notes: true
+          body: |
+            Test.
