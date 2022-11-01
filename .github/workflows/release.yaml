@@ -4,9 +4,6 @@ on:
     inputs:
       tag:
         required: true
-    secrets:
-      DOCKERHUB_PASSWORD:
-        required: true
 
 permissions:
   contents: read
@@ -17,7 +14,7 @@ jobs:
     with:
       tag: ${{ github.event.inputs.tag }}
     secrets:
-      DOCKERHUB_PASSWORD: ${{ github.event.secrets.DOCKERHUB_PASSWORD }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
   prepare-release:
     needs: build
     permissions:

@@ -11,9 +11,8 @@ on:
   workflow_call:
     inputs:
       tag:
-        type: string
         required: true
-    secrets:  # Secrets are not passed to the workflow by default
+    secrets:
       DOCKERHUB_PASSWORD:
         required: true
 
