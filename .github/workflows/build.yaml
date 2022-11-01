@@ -40,7 +40,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: ${{ github.event_name == 'push' }}
+          push: ${{ github.event_name == 'push' || github.event_name == 'workflow_call' }}
           tags: crenshawdotdev/argocd-executor-plugin:${{ inputs.tag || 'latest' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
