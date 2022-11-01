@@ -40,7 +40,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: ${{ github.event_name == 'push' || github.event_name == 'workflow_call' }}
+          push: ${{ github.event_name != 'pull_request' }}
           tags: crenshawdotdev/argocd-executor-plugin:${{ inputs.tag || 'latest' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -48,7 +48,7 @@ jobs:
         uses: sigstore/cosign-installer@main
         with:
           cosign-release: 'v1.13.0'
-        if: ${{ github.event_name == 'push' || github.event_name == 'workflow_call' }}
+        if: ${{ github.event_name != 'pull_request' }}
       - name: Sign ${{ inputs.tag }} image
         run: |
           cosign sign --key env://COSIGN_PRIVATE_KEY crenshawdotdev/argocd-executor-plugin:${{ inputs.tag }}
