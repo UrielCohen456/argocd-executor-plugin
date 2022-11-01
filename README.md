@@ -13,15 +13,15 @@ metadata:
 spec:
   entrypoint: main
   templates:
-    - name: main
-      plugin:
-        argocd:
-          actions:
-            - - app:
-                  sync:
-                    apps:
-                      - name: guestbook
-                      - name: guestbook-backend
+  - name: main
+    plugin:
+      argocd:
+        actions:
+        - - app:
+              sync:
+                apps:
+                - name: guestbook-frontend
+                - name: guestbook-backend
 ```
 
 ## Getting Started
@@ -80,18 +80,18 @@ metadata:
 spec:
   entrypoint: main
   templates:
-    - name: main
-      plugin:
-        argocd:
-          actions:
-            - - app:
-                  sync:
-                    apps:
-                      - name: guestbook-backend
-            - - app:
-                  sync:
-                    apps:
-                      - name: guestbook-frontend
+  - name: main
+    plugin:
+      argocd:
+        actions:
+        - - app:
+              sync:
+                apps:
+                - name: guestbook-backend
+        - - app:
+              sync:
+                apps:
+                - name: guestbook-frontend
 ```
 
 ### Setting sync options
@@ -102,19 +102,19 @@ kind: Workflow
 metadata:
   generateName: argocd-options-example-
 spec:
-    entrypoint: main
-    templates:
-      - name: main
-        plugin:
-          argocd:
-            actions:
-              - - app:
-                    sync:
-                      apps:
-                        - name: guestbook-backend
-                      options:
-                        - ServerSideApply=true
-                        - Validate=true
+  entrypoint: main
+  templates:
+  - name: main
+    plugin:
+      argocd:
+        actions:
+        - - app:
+              sync:
+                apps:
+                - name: guestbook-backend
+                options:
+                - ServerSideApply=true
+                - Validate=true
 ```
 
 ### Setting a timeout
@@ -127,17 +127,17 @@ kind: Workflow
 metadata:
   generateName: argocd-timeout-example-
 spec:
-    entrypoint: main
-    templates:
-      - name: main
-        plugin:
-          argocd:
-            actions:
-              - - app:
-                    sync:
-                      apps:
-                        - name: guestbook-backend
-                      timeout: 30s
+  entrypoint: main
+  templates:
+  - name: main
+    plugin:
+      argocd:
+        actions:
+        - - app:
+              sync:
+                apps:
+                - name: guestbook-backend
+                timeout: 30s
 ```
 
 ## Contributing
