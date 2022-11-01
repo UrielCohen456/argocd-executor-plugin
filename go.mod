@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/argoproj/argo-cd/v2 v2.5.0
-	github.com/argoproj/argo-workflows/v3 v3.3.1
+	github.com/argoproj/argo-workflows/v3 v3.3.5
 	github.com/magiconair/properties v1.8.5
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
 )
@@ -13,7 +13,7 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
-	github.com/Microsoft/go-winio v0.4.17 // indirect
+	github.com/Microsoft/go-winio v0.5.0 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
@@ -100,7 +100,7 @@ require (
 	github.com/vmihailenco/go-tinylfu v0.2.1 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.4 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
-	github.com/xanzy/ssh-agent v0.3.0 // indirect
+	github.com/xanzy/ssh-agent v0.3.1 // indirect
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.31.0 // indirect
 	go.opentelemetry.io/otel v1.6.3 // indirect
