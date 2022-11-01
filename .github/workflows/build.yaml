@@ -11,6 +11,7 @@ on:
   workflow_call:
     inputs:
       tag:
+        type: string
         required: true
     secrets:
       DOCKERHUB_PASSWORD:
