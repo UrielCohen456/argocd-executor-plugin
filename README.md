@@ -64,7 +64,7 @@ server, you can set the `ARGOCD_SERVER` environment variable in the plugin's con
 argo submit examples/argocd.yaml --serviceaccount my-service-account --watch
 ```
 
-## Usage
+## Examples
 
 The `actions` field of the plugin config accepts a nested list of actions. Parent lists are executed sequentially, and 
 child lists are executed in parallel. This allows you to run multiple actions in parallel, and multiple groups of 
