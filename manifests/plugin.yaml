@@ -11,7 +11,7 @@ spec:
   sidecar:
     container:
       name: argocd
-      image: crenshaw-dev/argocd-executor-plugin:latest
+      image: crenshawdotdev/argocd-executor-plugin:latest
       imagePullPolicy: Never
       env:
         - name: ARGOCD_AUTH_TOKEN

@@ -33,7 +33,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name == 'push' }}
-          tags: crenshaw-dev/argocd-executor-plugin:latest
+          tags: crenshawdotdev/argocd-executor-plugin:latest
       - name: Install cosign
         uses: sigstore/cosign-installer@main
         with:
@@ -41,7 +41,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
       - name: Sign latest image
         run: |
-          cosign sign --key env://COSIGN_PRIVATE_KEY crenshaw-dev/argocd-executor-plugin:latest
+          cosign sign --key env://COSIGN_PRIVATE_KEY crenshawdotdev/argocd-executor-plugin:latest
           # Displays the public key to share.
           cosign public-key --key env://COSIGN_PRIVATE_KEY
         env:
