@@ -1,0 +1,51 @@
+name: Create argocd-executor-plugin release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push:
+    uses: crenshaw-dev/argocd-executor-plugin/.github/workflows/build.yaml@main
+    with:
+      tag: ${{ github.event.inputs.tag }}
+    if: github.repository == 'crenshaw-dev/argocd-executor-plugin'
+  prepare-release:
+    permissions:
+      contents: write # To push changes to release branch
+    name: Release
+    if: github.repository == 'crenshaw-dev/argocd-executor-plugin'
+    runs-on: ubuntu-22.04
+    env:
+      GIT_USERNAME: crenshaw-dev
+      GIT_EMAIL: 350466+crenshaw-dev@users.noreply.github.com
+      RELEASE_TAG: ${{ github.event.inputs.tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push release tag
+        run: |
+          set -ue
+          
+          git config --global user.email "${GIT_EMAIL}"
+          git config --global user.name "${GIT_USERNAME}"
+
+          git tag ${RELEASE_TAG}
+          git push origin ${RELEASE_TAG}
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: ${{ env.RELEASE_TAG }}
+          tag_name: ${{ env.RELEASE_TAG }}
+          generate_release_notes: true

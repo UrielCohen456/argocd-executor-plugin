@@ -8,6 +8,11 @@ on:
     branches:
       - main
     types: [ opened, synchronize, reopened ]
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        default: 'latest'
 
 permissions:
   contents: read
@@ -33,18 +38,18 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name == 'push' }}
-          tags: crenshawdotdev/argocd-executor-plugin:latest
+          tags: crenshawdotdev/argocd-executor-plugin:${{ inputs.tag }}
       - name: Install cosign
         uses: sigstore/cosign-installer@main
         with:
           cosign-release: 'v1.13.0'
-        if: ${{ github.event_name == 'push' }}
-      - name: Sign latest image
+        if: ${{ github.event_name == 'push' || github.event_name == 'workflow_call' }}
+      - name: Sign ${{ inputs.tag }} image
         run: |
-          cosign sign --key env://COSIGN_PRIVATE_KEY crenshawdotdev/argocd-executor-plugin:latest
+          cosign sign --key env://COSIGN_PRIVATE_KEY crenshawdotdev/argocd-executor-plugin:${{ inputs.tag }}
           # Displays the public key to share.
           cosign public-key --key env://COSIGN_PRIVATE_KEY
         env:
           COSIGN_PRIVATE_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
           COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || github.event_name == 'workflow_call' }}
