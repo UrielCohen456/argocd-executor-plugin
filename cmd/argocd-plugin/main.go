@@ -6,7 +6,7 @@ import (
 
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
 
-	"github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/internal"
+	"github.com/crenshaw-dev/argocd-executor-plugin/internal"
 )
 
 func main() {
