@@ -12,7 +12,14 @@ permissions:
   contents: read
 
 jobs:
+  build:
+    uses: crenshaw-dev/argocd-executor-plugin/.github/workflows/build.yaml@main
+    with:
+      tag: ${{ github.event.inputs.tag }}
+    secrets:
+      DOCKERHUB_PASSWORD: ${{ github.event.secrets.DOCKERHUB_PASSWORD }}
   prepare-release:
+    needs: build
     permissions:
       contents: write # To push changes to release branch
     name: Release
@@ -23,12 +30,6 @@ jobs:
       GIT_EMAIL: 350466+crenshaw-dev@users.noreply.github.com
       RELEASE_TAG: ${{ github.event.inputs.tag }}
     steps:
-      - uses: crenshaw-dev/argocd-executor-plugin/.github/workflows/build.yaml@main
-        with:
-          tag: ${{ github.event.inputs.tag }}
-        secrets:
-          DOCKERHUB_PASSWORD: ${{ github.event.secrets.DOCKERHUB_PASSWORD }}
-        if: github.repository == 'crenshaw-dev/argocd-executor-plugin'
       - name: Checkout code
         uses: actions/checkout@v3
         with:
