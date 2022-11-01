@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/argoproj/argo-cd/v2 v2.5.0
 	github.com/argoproj/argo-workflows/v3 v3.3.5
-	github.com/magiconair/properties v1.8.5
+	github.com/stretchr/testify v1.7.1
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
 )
 
@@ -96,7 +96,6 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cobra v1.5.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/vmihailenco/go-tinylfu v0.2.1 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.4 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect

@@ -10,15 +10,15 @@ import (
 	"testing"
 
 	"github.com/argoproj/argo-workflows/v3/pkg/plugins/executor"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
-	headerEmpty				 			= map[string]string{}
-	headerContentJson 			= map[string]string{"Content-Type": "application/json"}
-	headerContentEncoded		= map[string]string{"Content-Type": "application/x-www-form-urlencoded"}
-	validWorkflowBody 			= []byte(
-`{
+	headerEmpty          = map[string]string{}
+	headerContentJson    = map[string]string{"Content-Type": "application/json"}
+	headerContentEncoded = map[string]string{"Content-Type": "application/x-www-form-urlencoded"}
+	validWorkflowBody    = []byte(
+		`{
   "workflow": {
 	  "metadata": {
       "name": "test-template"
@@ -39,11 +39,11 @@ var (
 type errReader int
 
 func (errReader) Read(_ []byte) (n int, err error) {
-    return 0, errors.New("read error")
+	return 0, errors.New("read error")
 }
 
 type executorSpy struct {
-	Called 	bool
+	Called bool
 }
 
 func (e *executorSpy) Execute(_ executor.ExecuteTemplateArgs) executor.ExecuteTemplateReply {
@@ -55,16 +55,16 @@ func (e *executorSpy) Execute(_ executor.ExecuteTemplateArgs) executor.ExecuteTe
 func TestArgocdPlugin(t *testing.T) {
 	// test returning correct result based on input
 
-  	spy := executorSpy{}
+	spy := executorSpy{}
 	argocdPlugin := ArgocdPlugin(&spy)
 	handler := http.HandlerFunc(argocdPlugin)
 
 	var failTests = []struct {
-		name string
-		body io.Reader
+		name    string
+		body    io.Reader
 		headers map[string]string
-		want string
-		status int
+		want    string
+		status  int
 	}{
 		{
 			name:    "fail header content-type is empty",
@@ -104,7 +104,7 @@ func TestArgocdPlugin(t *testing.T) {
 			}
 			response := httptest.NewRecorder()
 			handler.ServeHTTP(response, request)
-			
+
 			got := strings.Trim(response.Body.String(), "\n")
 			gotStatus := response.Result().StatusCode
 
@@ -114,18 +114,18 @@ func TestArgocdPlugin(t *testing.T) {
 	}
 
 	var execTests = []struct {
-		name string
-		fail bool
+		name   string
+		fail   bool
 		status int
 	}{
 		{
-			name: "exec without fail",
-			fail: false,
+			name:   "exec without fail",
+			fail:   false,
 			status: http.StatusOK,
 		},
 		{
-			name: "exec fails",
-			fail: true,
+			name:   "exec fails",
+			fail:   true,
 			status: http.StatusInternalServerError,
 		},
 	}
@@ -138,7 +138,7 @@ func TestArgocdPlugin(t *testing.T) {
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			handler.ServeHTTP(response, request)
-			
+
 			if !spy.Called && !tt.fail {
 				t.Error("ApiExecutor was not called")
 			}
@@ -148,6 +148,5 @@ func TestArgocdPlugin(t *testing.T) {
 			assert.Equal(t, got, tt.status)
 			assert.Equal(t, got, tt.status)
 		})
-  }
+	}
 }
-
