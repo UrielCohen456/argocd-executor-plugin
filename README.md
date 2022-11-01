@@ -1,7 +1,8 @@
-<div align="center">
-  <h1 align="center">Argo CD Executor Plugin</h1>
-  <p align="center">An <a href="https://github.com/argoproj/argo-workflows/blob/master/docs/executor_plugins.md">Executor Plugin</a> for <a href="https://argoproj.github.io/argo-workflows/">Argo Workflows</a> that lets you interact with Argo CD servers.</p>
-</div>
+# Argo CD Executor Plugin
+
+
+An [Executor Plugin](https://github.com/argoproj/argo-workflows/blob/master/docs/executor_plugins.md) for 
+Argo Workflows that lets you interact with Argo CD servers. All you need is an Argo CD API token.
 
 ## Example
 
