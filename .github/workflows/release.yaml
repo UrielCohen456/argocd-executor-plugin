@@ -43,7 +43,7 @@ jobs:
           curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.4.3/argo-darwin-amd64.gz
           gunzip argo-darwin-amd64.gz
           chmod +x argo-darwin-amd64
-          argo-darwin-amd64 executor-plugin build ./manifests
+          ./argo-darwin-amd64 executor-plugin build ./manifests
       - name: Push release tag
         run: |
           set -ue
