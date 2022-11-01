@@ -36,7 +36,7 @@ jobs:
         id: manifests
         uses: mikefarah/yq@master
         with:
-          cmd: yq -i '.spec.sidecar.container.image = "crenshawdotdev/argocd-executor-plugin:$RELEASE_TAG"' manifests/plugin.yaml
+          cmd: yq -i '.spec.sidecar.container.image = "crenshawdotdev/argocd-executor-plugin:" + strenv(RELEASE_TAG)' manifests/plugin.yaml
       - name: Update install manifest
         run: |
           # Download the binary
