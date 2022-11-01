@@ -7,8 +7,8 @@ setup:
 .PHONY: build
 build:
 	go mod tidy
-	docker build --load -t crenshaw-dev/argocd-executor-plugin:latest -f ./Dockerfile .
-	kind load docker-image crenshaw-dev/argocd-executor-plugin:latest --name argo-workflows-plugin-argocd
+	docker build --load -t crenshawdotdev/argocd-executor-plugin:latest -f ./Dockerfile .
+	kind load docker-image crenshawdotdev/argocd-executor-plugin:latest --name argo-workflows-plugin-argocd
 
 .PHONY: manifests
 manifests:
