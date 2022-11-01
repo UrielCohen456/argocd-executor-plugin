@@ -37,6 +37,21 @@ kubectl apply -n argo -f https://raw.githubusercontent.com/crenshaw-dev/argocd-e
 
 You will have to run the workflow using a service account with appropriate permissions. See [examples/rbac.yaml](examples/rbac.yaml) for an example.
 
+The plugin requires a secret named `argocd-sync-token` with a key called `jwt.txt` containing the Argo CD token.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argocd-sync-token
+data:
+  jwt.txt: <base64 encoded token>
+```
+
+The plugin also assumes the Argo CD API server is accessible on a server at this address: `argocd-server.argocd.svc.cluster.local`.
+
+To change the address, edit the value of the ARGOCD_SERVER environment variable in the configmap.
+
 ## Contributing
 
 Head to the [scripts](CONTRIBUTING.md) directory to find out how to get the project up and running on your local machine for development and testing purposes.
