@@ -140,6 +140,30 @@ spec:
                 timeout: 30s
 ```
 
+### Specifying the Application's namespace
+
+Starting in Argo CD v2.5, Applications may be installed outside the `argocd` namespace (or whichever namespace Argo CD 
+installed in). To specify the namespace, use the `namespace` field.
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: argocd-namespace-example-
+spec:
+  entrypoint: main
+  templates:
+  - name: main
+    plugin:
+      argocd:
+        actions:
+        - - app:
+              sync:
+                apps:
+                - name: guestbook-backend
+                  namespace: my-apps-namespace
+```
+
 ## Contributing
 
 Head to the [scripts](CONTRIBUTING.md) directory to find out how to get the project up and running on your local machine for development and testing purposes.
