@@ -2,7 +2,7 @@
 # argocd
 
 * Needs: >= v3.3
-* Image: crenshawdotdev/argocd-executor-plugin:v0.0.6
+* Image: crenshawdotdev/argocd-executor-plugin:v0.0.7
 
 This is an Argo CD plugin that allows you to interact with an argocd instance of your choice.
 For examples visit https://github.com/UrielCohen456/argo-workflows-argocd-executor-plugin/examples
