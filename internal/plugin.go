@@ -3,7 +3,7 @@ package argocd
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	ErrWrongContentType		= errors.New("Content-Type header is not set to 'application/json'")
-	ErrReadingBody		 	= errors.New("couldn't read request body")
-	ErrMarshallingBody		= errors.New("couldn't unmarshal request body")
+	ErrWrongContentType = errors.New("Content-Type header is not set to 'application/json'")
+	ErrReadingBody      = errors.New("couldn't read request body")
+	ErrMarshallingBody  = errors.New("couldn't unmarshal request body")
 )
 
 // Executor performs the tasks requested by the Workflow.
@@ -32,7 +32,7 @@ func ArgocdPlugin(plugin Executor) func(w http.ResponseWriter, req *http.Request
 			return
 		}
 
-		body, err := ioutil.ReadAll(req.Body)
+		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			log.Printf("%v: %v", ErrReadingBody.Error(), err)
 			http.Error(w, ErrReadingBody.Error(), http.StatusBadRequest)

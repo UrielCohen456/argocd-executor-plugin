@@ -16,7 +16,7 @@ manifests:
 
 .PHONY: apply
 apply: manifests
-	kubectl apply -n argo -f deployments/argocd-executor-plugin-configmap.yaml
+	yq '.data["sidecar.container"] |= (from_yaml | (.image = "crenshawdotdev/argocd-executor-plugin:latest") | to_yaml)' manifests/argocd-executor-plugin-configmap.yaml | kubectl apply -n argo -f -
 	kubectl apply -n argo -f examples/rbac.yaml
 
 .PHONY: submit

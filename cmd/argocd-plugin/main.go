@@ -17,7 +17,8 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("failed to initialize Argo CD API client: %s", err))
 	}
-	http.HandleFunc("/api/v1/template.execute", argocd.ArgocdPlugin(argocd.NewApiExecutor(client)))
+	executor := argocd.NewApiExecutor(client)
+	http.HandleFunc("/api/v1/template.execute", argocd.ArgocdPlugin(&executor))
 	err = http.ListenAndServe(":3000", nil)
 	if err != nil {
 		panic(err.Error())

@@ -18,12 +18,10 @@ spec:
           actions:
             # TODO: support other action types, e.g. `cluster` and `repository`.
             - - app:
-                  sync:
-                    apps:
-                      - name: guestbook
-                    options:
-                      - ServerSideApply=true
-                timeout: 10s
+                  diff:
+                    app:
+                      name: guestbook
+                    revision: 382b85852fa33f13d4987424853c5206b9231ff0
             # Uncomment this to test a failed sync.
 #            - - app:
 #                  sync:
