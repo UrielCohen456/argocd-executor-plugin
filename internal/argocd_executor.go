@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -19,6 +18,7 @@ import (
 	wfv1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo-workflows/v3/pkg/plugins/executor"
 	"github.com/argoproj/gitops-engine/pkg/sync/hook"
+	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/utils/pointer"
 
@@ -49,133 +49,73 @@ func (e *ApiExecutor) Execute(args executor.ExecuteTemplateArgs) executor.Execut
 		return errorResponse(err)
 	}
 
-	totalActionGroups := len(plugin.ArgoCD.Actions)
-	actionGroupCount := 0
-
-	var groupOutputs [][]any
-	for i, actionGroup := range plugin.ArgoCD.Actions {
-		outputs, err := e.runActionsParallel(actionGroup)
-		if err != nil {
-			return failedResponse(wfv1.Progress(fmt.Sprintf("%d/%d", actionGroupCount, totalActionGroups)), fmt.Errorf("action group %d of %d failed: %w", i+1, totalActionGroups, err))
-		}
-		groupOutputs = append(groupOutputs, outputs)
-		actionGroupCount += 1
-	}
-
-	outputsJson, err := json.Marshal(groupOutputs)
+	output, err := e.runAction(plugin.ArgoCD)
 	if err != nil {
-		err = fmt.Errorf("failed to marshal outputs to JSON: %w", err)
-		log.Println(err.Error())
-		return errorResponse(err)
+		return failedResponse(wfv1.Progress(fmt.Sprintf("0/1")), fmt.Errorf("action failed: %w", err))
 	}
-
-	outputsJsonAnyString := wfv1.AnyString(outputsJson)
 
 	return executor.ExecuteTemplateReply{
 		Node: &wfv1.NodeResult{
 			Phase:    wfv1.NodeSucceeded,
-			Message:  "Actions completed",
-			Progress: wfv1.Progress(fmt.Sprintf("%d/%d", actionGroupCount, totalActionGroups)),
+			Message:  "Action completed",
+			Progress: "1/1",
 			Outputs: &wfv1.Outputs{
-				Parameters: []wfv1.Parameter{
-					{
-						Name:  "outputs",
-						Value: &outputsJsonAnyString,
-					},
-				},
+				Result: pointer.String(output),
 			},
 		},
 	}
 }
 
-type actionResult struct {
-	index  int
-	err    error
-	output any
-}
-
-// runActionsParallel runs the given group of actions in parallel and returns aggregated errors, if any.
-func (e *ApiExecutor) runActionsParallel(actionGroup []ActionSpec) ([]any, error) {
+// runAction runs the given action and returns outputs or errors, if any.
+func (e *ApiExecutor) runAction(action ActionSpec) (out string, err error) {
 	closer, appClient, err := e.apiClient.NewApplicationClient()
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize Application API client: %w", err)
+		return "", fmt.Errorf("failed to initialize Application API client: %w", err)
 	}
 	defer io.Close(closer)
 
 	closer, settingsClient, err := e.apiClient.NewSettingsClient()
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize Application API client: %w", err)
+		return "", fmt.Errorf("failed to initialize Application API client: %w", err)
 	}
 	defer io.Close(closer)
 
-	wg := sync.WaitGroup{}
-	actionResults := make(chan actionResult, len(actionGroup))
-	for i, action := range actionGroup {
-		i := i
-		action := action
-		if action.App == nil {
-			return nil, fmt.Errorf("action %d of %d is missing a valid action type (sync or diff)", i+1, len(actionGroup))
-		}
-		if action.App.Sync != nil && action.App.Diff != nil {
-			return nil, fmt.Errorf("action %d of %d has both multiple types of actions defined", i+1, len(actionGroup))
-		}
-		if action.App.Sync == nil && action.App.Diff == nil {
-			return nil, fmt.Errorf("action %d of %d has no action defined", i+1, len(actionGroup))
-		}
-		wg.Add(1)
-		go func(actionNum int) {
-			defer wg.Done()
-			if action.App.Sync != nil {
-				err := syncAppsParallel(*action.App.Sync, action.Timeout, appClient)
-				if err != nil {
-					actionResults <- actionResult{index: i, err: fmt.Errorf("parallel item %d of %d failed: failed to sync Application(s): %w", actionNum+1, len(actionGroup), err)}
-				} else {
-					actionResults <- actionResult{index: i, output: ""}
-				}
-			}
-			if action.App.Diff != nil {
-				diff, err := diffApp(*action.App.Diff, action.Timeout, appClient, settingsClient)
-				if err != nil {
-					actionResults <- actionResult{index: i, err: fmt.Errorf("parallel item %d of %d failed: failed to diff Application: %w", actionNum+1, len(actionGroup), err)}
-				} else {
-					actionResults <- actionResult{index: i, output: diff}
-				}
-			}
-		}(i)
+	if action.App == nil {
+		return "", errors.New("action is missing a valid action type (i.e. an 'app' block)")
 	}
-	go func() {
-		wg.Wait()
-		close(actionResults)
-	}()
-	var results []actionResult
-	for out := range actionResults {
-		results = append(results, out)
+	if action.App.Sync != nil && action.App.Diff != nil {
+		return "", errors.New("action has multiple types of action defined (both sync and diff)")
 	}
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].index < results[j].index
-	})
-	hasError := false
-	var errorMessages []string
-	var outputs []any
-	for _, result := range results {
-		if result.err != nil {
-			hasError = true
-			errorMessages = append(errorMessages, result.err.Error())
-			outputs = append(outputs, nil)
-		} else {
-			errorMessages = append(errorMessages, "")
-			outputs = append(outputs, result.output)
+	if action.App.Sync == nil && action.App.Diff == nil {
+		return "", errors.New("app action has no action type specified (must be sync or diff)")
+	}
+
+	if action.App.Sync != nil {
+		err = syncAppsParallel(*action.App.Sync, action.Timeout, appClient)
+		if err != nil {
 		}
 	}
-	if hasError {
-		return nil, fmt.Errorf("one or more actions failed: %s", strings.Join(errorMessages, "; "))
+	if action.App.Diff != nil {
+		out, err = diffApp(*action.App.Diff, action.Timeout, appClient, settingsClient)
+		if err != nil {
+		}
 	}
-	return outputs, nil
+	return out, err
 }
 
 // syncAppsParallel loops over the apps in a SyncAction and syncs them in parallel. It waits for all responses and then
 // aggregates any errors.
 func syncAppsParallel(action SyncAction, timeout string, appClient application.ApplicationServiceClient) error {
+	var apps []App
+	err := yaml.Unmarshal([]byte(action.Apps), &apps)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal apps: %w", err)
+	}
+	var options []string
+	err = yaml.Unmarshal([]byte(action.Options), &options)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal options: %w", err)
+	}
 	ctx, cancel, err := durationStringToContext(timeout)
 	if err != nil {
 		return fmt.Errorf("failed get action context: %w", err)
@@ -183,7 +123,7 @@ func syncAppsParallel(action SyncAction, timeout string, appClient application.A
 	defer cancel()
 	wg := sync.WaitGroup{}
 	errChan := make(chan error, len(action.Apps))
-	for _, app := range action.Apps {
+	for _, app := range apps {
 		app := app
 		wg.Add(1)
 		go func() {
@@ -191,7 +131,7 @@ func syncAppsParallel(action SyncAction, timeout string, appClient application.A
 			_, err := appClient.Sync(ctx, &application.ApplicationSyncRequest{
 				Name:         pointer.String(app.Name),
 				AppNamespace: pointer.String(app.Namespace),
-				SyncOptions:  &application.SyncOptions{Items: action.Options},
+				SyncOptions:  &application.SyncOptions{Items: options},
 			})
 			if err != nil {
 				errChan <- fmt.Errorf("failed to sync app %q: %w", app.Name, err)
@@ -308,7 +248,7 @@ func diffApp(action DiffAction, timeout string, appClient application.Applicatio
 				target = item.target
 			}
 
-			diff, err = GetDiff(action.App.Name, live, target)
+			diff, err = GetDiff(live, target)
 			if err != nil {
 				return "", fmt.Errorf("failed to get diff: %w", err)
 			}

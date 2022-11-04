@@ -15,14 +15,33 @@ spec:
   entrypoint: main
   templates:
   - name: main
-    plugin:
-      argocd:
-        actions:
-        - - app:
-              sync:
-                apps:
+    steps:
+    - - name: sync
+        template: sync
+        arguments:
+          parameters:
+            - name: apps
+              value: |
                 - name: guestbook-frontend
                 - name: guestbook-backend
+    - - name: diff
+        template: diff
+  - name: sync
+    inputs:
+      parameters:
+        - name: apps
+    plugin:
+      argocd:
+        app:
+          sync:
+            apps: "{{inputs.parameters.apps}}"
+  - name: diff
+    plugin:
+      argocd:
+        app:
+          diff:
+            app:
+              name: guestbook-frontend
 ```
 
 ## Getting Started
@@ -71,30 +90,6 @@ The `actions` field of the plugin config accepts a nested list of actions. Paren
 child lists are executed in parallel. This allows you to run multiple actions in parallel, and multiple groups of 
 actions in sequence.
 
-### Running syncs in sequence
-
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Workflow
-metadata:
-  generateName: argocd-sequence-example-
-spec:
-  entrypoint: main
-  templates:
-  - name: main
-    plugin:
-      argocd:
-        actions:
-        - - app:
-              sync:
-                apps:
-                - name: guestbook-backend
-        - - app:
-              sync:
-                apps:
-                - name: guestbook-frontend
-```
-
 ### Setting sync options
 
 ```yaml
@@ -108,14 +103,13 @@ spec:
   - name: main
     plugin:
       argocd:
-        actions:
-        - - app:
-              sync:
-                apps:
-                - name: guestbook-backend
-                options:
-                - ServerSideApply=true
-                - Validate=true
+        app:
+          sync:
+            apps: |
+              - name: guestbook-backend
+            options: |
+              - ServerSideApply=true
+              - Validate=true
 ```
 
 ### Setting a timeout
@@ -133,12 +127,14 @@ spec:
   - name: main
     plugin:
       argocd:
-        actions:
-        - - app:
-              sync:
-                apps:
-                - name: guestbook-backend
-                timeout: 30s
+        app:
+          sync:
+            apps: |
+              - name: guestbook-backend
+            options: |
+              - ServerSideApply=true
+              - Validate=true
+        timeout: 30s
 ```
 
 ### Specifying the Application's namespace
@@ -157,12 +153,11 @@ spec:
   - name: main
     plugin:
       argocd:
-        actions:
-        - - app:
-              sync:
-                apps:
-                - name: guestbook-backend
-                  namespace: my-apps-namespace
+        app:
+          sync:
+            apps: |
+              - name: guestbook-backend
+                namespace: my-apps-namespace
 ```
 
 ## Contributing

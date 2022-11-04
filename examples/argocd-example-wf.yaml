@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: argocd-example-
+  name: test
 spec:
   ttlStrategy:
     secondsAfterCompletion: 300
@@ -11,19 +11,31 @@ spec:
   entrypoint: main
   templates:
     - name: main
+      steps:
+      - - name: sync
+          template: sync
+          arguments:
+            parameters:
+              - name: apps
+                value: |
+                  - name: guestbook
+      - - name: diff
+          template: diff
+    - name: sync
+      inputs:
+        parameters:
+          - name: apps
       plugin:
         argocd:
-          # `actions` is a nested list. Items of inner arrays run in parallel. Top-level arrays run in sequence.
-          # In this example, each inner array has only one item. The syncs run in sequence.
-          actions:
-            # TODO: support other action types, e.g. `cluster` and `repository`.
-            - - app:
-                  diff:
-                    app:
-                      name: guestbook
-                    revision: 382b85852fa33f13d4987424853c5206b9231ff0
-            # Uncomment this to test a failed sync.
-#            - - app:
-#                  sync:
-#                    apps:
-#                      - name: not-real
+          app:
+            sync:
+              apps: "{{inputs.parameters.apps}}"
+    - name: diff
+      plugin:
+        argocd:
+          # TODO: support other action types, e.g. `cluster` and `repository`.
+          app:
+            diff:
+              app:
+                name: guestbook
+              revision: 382b85852fa33f13d4987424853c5206b9231ff0

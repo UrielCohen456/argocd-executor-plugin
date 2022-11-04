@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
 
 	"github.com/argoproj/argo-cd/v2/controller"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/settings"
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/argoproj/argo-cd/v2/util/argo"
+	"github.com/argoproj/argo-cd/v2/util/io"
 	"github.com/argoproj/gitops-engine/pkg/sync/hook"
 	"github.com/argoproj/gitops-engine/pkg/sync/ignore"
 	"github.com/argoproj/gitops-engine/pkg/utils/kube"
@@ -127,7 +127,7 @@ func groupObjsForDiff(resources *application.ManagedResourcesResponse, objs map[
 }
 
 // GetDiff gets a diff between two unstructured objects to stdout using an external diff utility
-func GetDiff(name string, live *unstructured.Unstructured, target *unstructured.Unstructured) (string, error) {
+func GetDiff(live *unstructured.Unstructured, target *unstructured.Unstructured) (string, error) {
 	tempDir, err := os.MkdirTemp("", "argocd-diff")
 	if err != nil {
 		return "", err
@@ -138,7 +138,11 @@ func GetDiff(name string, live *unstructured.Unstructured, target *unstructured.
 			fmt.Printf("Failed to delete temp dir %s: %v\n", tempDir, err)
 		}
 	}()
-	targetFile := path.Join(tempDir, name)
+	targetFile, err := os.CreateTemp(tempDir, "target")
+	if err != nil {
+		return "", err
+	}
+	defer io.Close(targetFile)
 	targetData := []byte("")
 	if target != nil {
 		targetData, err = yaml.Marshal(target)
@@ -146,11 +150,15 @@ func GetDiff(name string, live *unstructured.Unstructured, target *unstructured.
 			return "", err
 		}
 	}
-	err = os.WriteFile(targetFile, targetData, 0644)
+	_, err = targetFile.Write(targetData)
 	if err != nil {
 		return "", err
 	}
-	liveFile := path.Join(tempDir, fmt.Sprintf("%s-live.yaml", name))
+	liveFile, err := os.CreateTemp(tempDir, "live")
+	if err != nil {
+		return "", err
+	}
+	defer io.Close(liveFile)
 	liveData := []byte("")
 	if live != nil {
 		liveData, err = yaml.Marshal(live)
@@ -158,11 +166,11 @@ func GetDiff(name string, live *unstructured.Unstructured, target *unstructured.
 			return "", err
 		}
 	}
-	err = os.WriteFile(liveFile, liveData, 0644)
+	_, err = liveFile.Write(liveData)
 	if err != nil {
 		return "", err
 	}
-	cmd := exec.Command("diff", liveFile, targetFile)
+	cmd := exec.Command("diff", liveFile.Name(), targetFile.Name())
 	out, err := cmd.Output()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {

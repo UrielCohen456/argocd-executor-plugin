@@ -2,12 +2,7 @@ package argocd
 
 // PluginSpec represents the `plugin` block of an Argo Workflows template.
 type PluginSpec struct {
-	ArgoCD ArgocdPluginSpec `json:"argocd,omitempty"`
-}
-
-// ArgocdPluginSpec describes the parameters of the Argo CD plugin.
-type ArgocdPluginSpec struct {
-	Actions [][]ActionSpec `json:"actions,omitempty"`
+	ArgoCD ActionSpec `json:"argocd,omitempty"`
 }
 
 type ActionSpec struct {
@@ -31,10 +26,10 @@ type DiffAction struct {
 
 // SyncAction describes an action that triggers an argocd sync.
 type SyncAction struct {
-	// Apps are the applications to be synced.
-	Apps []App `json:"apps,omitempty"`
-	// Options is a list of option=value pairs to configure the sync operation. https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/
-	Options []string `json:"options,omitempty"`
+	// Apps is a YAML array of objects representing the apps to be synced. For example, `[{name: my-app}, {name: my-app, namespace: app-ns}]`.
+	Apps string `json:"apps,omitempty"`
+	// Options is a YAML array of option=value pairs to configure the sync operation. https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/
+	Options string `json:"options,omitempty"`
 }
 
 // App specifies the app to be synced.
