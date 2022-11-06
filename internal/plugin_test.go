@@ -43,18 +43,21 @@ func (errReader) Read(_ []byte) (n int, err error) {
 }
 
 type executorSpy struct {
-	Called bool
+	AuthorizeCalled bool
+	ExecuteCalled   bool
+}
+
+func (e *executorSpy) Authorize(_ *http.Request) error {
+	e.AuthorizeCalled = true
+	return nil
 }
 
 func (e *executorSpy) Execute(_ executor.ExecuteTemplateArgs) executor.ExecuteTemplateReply {
-	e.Called = true
-
+	e.ExecuteCalled = true
 	return executor.ExecuteTemplateReply{}
 }
 
 func TestArgocdPlugin(t *testing.T) {
-	// test returning correct result based on input
-
 	spy := executorSpy{}
 	argocdPlugin := ArgocdPlugin(&spy)
 	handler := http.HandlerFunc(argocdPlugin)
@@ -110,43 +113,6 @@ func TestArgocdPlugin(t *testing.T) {
 
 			assert.Equal(t, got, tt.want)
 			assert.Equal(t, gotStatus, tt.status)
-		})
-	}
-
-	var execTests = []struct {
-		name   string
-		fail   bool
-		status int
-	}{
-		{
-			name:   "exec without fail",
-			fail:   false,
-			status: http.StatusOK,
-		},
-		{
-			name:   "exec fails",
-			fail:   true,
-			status: http.StatusInternalServerError,
-		},
-	}
-
-	body := validWorkflowBody
-	for _, tt := range execTests {
-		t.Run(tt.name, func(t *testing.T) {
-			spy.Called = false
-			request, _ := http.NewRequest(http.MethodPost, "/api/v1/template.execute", bytes.NewReader(body))
-			request.Header.Set("Content-Type", "application/json")
-			response := httptest.NewRecorder()
-			handler.ServeHTTP(response, request)
-
-			if !spy.Called && !tt.fail {
-				t.Error("ApiExecutor was not called")
-			}
-
-			got := response.Result().StatusCode
-
-			assert.Equal(t, got, tt.status)
-			assert.Equal(t, got, tt.status)
 		})
 	}
 }

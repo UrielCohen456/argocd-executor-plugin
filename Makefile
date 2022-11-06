@@ -26,3 +26,7 @@ submit:
 .PHONY: clean
 clean:
 	bash scripts/delete_cluster.sh
+
+.PHONY: test
+test:
+	go test -v ./... -coverprofile cover.out
