@@ -29,6 +29,6 @@ argocd proj role add-policy guestbook sync --action sync -o '*' --port-forward -
 argocd app create guestbook --upsert --project guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path guestbook --dest-namespace guestbook --dest-server https://kubernetes.default.svc --directory-recurse --port-forward --port-forward-namespace argocd
 
 # Create role token
-argocd proj role create-token guestbook sync -i argocd-workflows-plugin -t --port-forward --port-forward-namespace argocd | tr -d '\n' > ./jwt.txt
-kubectl create secret generic argocd-sync-token -n argo --save-config --dry-run=client --from-file=./jwt.txt -oyaml | kubectl apply -f -
-rm ./jwt.txt
+argocd proj role create-token guestbook sync -i argocd-workflows-plugin -t --port-forward --port-forward-namespace argocd | tr -d '\n' > ./token
+kubectl create secret generic argocd-token -n argo --save-config --dry-run=client --from-file=./token -oyaml | kubectl apply -f -
+rm ./token

@@ -48,21 +48,21 @@ spec:
 
 ### Step 1: Get an Argo CD token
 
-The plugin requires a secret named `argocd-sync-token` with a key called `jwt.txt` containing the Argo CD token. See the [Argo CD documentation](https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-roles) for information about generating tokens.
+The plugin requires a secret named `argocd-token` with a key called `token` containing the Argo CD token. See the [Argo CD documentation](https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-roles) for information about generating tokens.
 
 ```yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: argocd-sync-token
+  name: argocd-token
 stringData:
-  jwt.txt: <token>
+  token: <token>
 ```
 
 After defining the secret, apply it to your cluster:
 
 ```shell
-kubectl apply -f argocd-sync-token.yaml
+kubectl apply -f argocd-token.yaml
 ```
 
 ### Step 2: Install the plugin

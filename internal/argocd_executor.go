@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -26,11 +27,20 @@ import (
 )
 
 type ApiExecutor struct {
-	apiClient apiclient.Client
+	apiClient  apiclient.Client
+	agentToken string
 }
 
-func NewApiExecutor(apiClient apiclient.Client) ApiExecutor {
-	return ApiExecutor{apiClient: apiClient}
+func NewApiExecutor(apiClient apiclient.Client, agentToken string) ApiExecutor {
+	return ApiExecutor{apiClient: apiClient, agentToken: agentToken}
+}
+
+func (e *ApiExecutor) Authorize(req *http.Request) error {
+	auth := req.Header.Get("Authorization")
+	if auth != "Bearer "+e.agentToken {
+		return fmt.Errorf("invalid agent token")
+	}
+	return nil
 }
 
 func (e *ApiExecutor) Execute(args executor.ExecuteTemplateArgs) executor.ExecuteTemplateReply {
@@ -49,7 +59,12 @@ func (e *ApiExecutor) Execute(args executor.ExecuteTemplateArgs) executor.Execut
 		return errorResponse(err)
 	}
 
-	output, err := e.runAction(plugin.ArgoCD)
+	if plugin.ArgoCD == nil {
+		log.Println("unsupported plugin type")
+		return executor.ExecuteTemplateReply{} // unsupported plugin
+	}
+
+	output, err := e.runAction(*plugin.ArgoCD)
 	if err != nil {
 		return failedResponse(wfv1.Progress(fmt.Sprintf("0/1")), fmt.Errorf("action failed: %w", err))
 	}
@@ -93,11 +108,13 @@ func (e *ApiExecutor) runAction(action ActionSpec) (out string, err error) {
 	if action.App.Sync != nil {
 		err = syncAppsParallel(*action.App.Sync, action.Timeout, appClient)
 		if err != nil {
+			return "", fmt.Errorf("failed to sync apps: %w", err)
 		}
 	}
 	if action.App.Diff != nil {
 		out, err = diffApp(*action.App.Diff, action.Timeout, appClient, settingsClient)
 		if err != nil {
+			return "", fmt.Errorf("failed to diff app: %w", err)
 		}
 	}
 	return out, err

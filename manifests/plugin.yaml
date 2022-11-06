@@ -17,8 +17,8 @@ spec:
         - name: ARGOCD_AUTH_TOKEN
           valueFrom:
             secretKeyRef:
-              name: argocd-sync-token
-              key: jwt.txt
+              name: argocd-token
+              key: token
         - name: ARGOCD_SERVER
           value: argocd-server.argocd.svc.cluster.local
       ports:

@@ -20,6 +20,7 @@ var (
 
 // Executor performs the tasks requested by the Workflow.
 type Executor interface {
+	Authorize(req *http.Request) error
 	// Execute runs commands based on the args provided from the workflow
 	Execute(args executor.ExecuteTemplateArgs) executor.ExecuteTemplateReply
 }

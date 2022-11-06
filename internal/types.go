@@ -2,7 +2,7 @@ package argocd
 
 // PluginSpec represents the `plugin` block of an Argo Workflows template.
 type PluginSpec struct {
-	ArgoCD ActionSpec `json:"argocd,omitempty"`
+	ArgoCD *ActionSpec `json:"argocd,omitempty"`
 }
 
 type ActionSpec struct {

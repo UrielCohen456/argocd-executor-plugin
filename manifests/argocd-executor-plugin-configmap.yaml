@@ -7,8 +7,8 @@ data:
     - name: ARGOCD_AUTH_TOKEN
       valueFrom:
         secretKeyRef:
-          key: jwt.txt
-          name: argocd-sync-token
+          key: token
+          name: argocd-token
     - name: ARGOCD_SERVER
       value: argocd-server.argocd.svc.cluster.local
     image: crenshawdotdev/argocd-executor-plugin:v0.0.7
